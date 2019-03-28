@@ -71,7 +71,10 @@ RUN sed -i 's/DAEMON_ARGS=""/DAEMON_ARGS=" -c \/usr\/local\/etc\/renderd.conf"/'
 RUN sed -i 's/RUNASUSER=www-data/RUNASUSER=postgres/' ~postgres/src/mod_tile/debian/renderd.init 
 RUN cp ~postgres/src/mod_tile/debian/renderd.init /etc/init.d/renderd && chmod a+x /etc/init.d/renderd
 
+# test page
 COPY ./index.html /var/www/html/
+# health check
+RUN touch /var/www/html/_health
 
 COPY ./docker-entrypoint.sh /
 RUN chmod +x docker-entrypoint.sh
