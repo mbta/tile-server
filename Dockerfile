@@ -47,7 +47,7 @@ USER postgres
 RUN mkdir ~/data && cd ~/data &&\
   wget http://download.geofabrik.de/north-america/us/massachusetts-latest.osm.pbf
 RUN /etc/init.d/postgresql start && osm2pgsql -d gis --create --slim  -G --hstore --tag-transform-script\
-  ~/src/openstreetmap-carto/openstreetmap-carto.lua -C 10000 --number-processes 4\
+  ~/src/openstreetmap-carto/openstreetmap-carto.lua -C 5000 --number-processes 4\
   -S ~/src/openstreetmap-carto/openstreetmap-carto.style ~/data/massachusetts-latest.osm.pbf &&\
   /etc/init.d/postgresql stop
 
