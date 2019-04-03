@@ -11,8 +11,8 @@ RUN apt-get -y install postgresql postgresql-contrib postgis postgresql-10-postg
 USER postgres
 RUN /etc/init.d/postgresql start &&\
     psql --command "CREATE USER docker WITH SUPERUSER PASSWORD 'docker';" &&\
-    createdb -E UTF8 -O docker gis &&\ 
-    psql --dbname=gis --command "CREATE EXTENSION hstore;" &&\    
+    createdb -E UTF8 -O docker gis &&\
+    psql --dbname=gis --command "CREATE EXTENSION hstore;" &&\
     psql --dbname=gis --command "CREATE EXTENSION postgis;" &&\
     psql --dbname=gis --command "ALTER TABLE geometry_columns OWNER TO docker;" &&\
     psql --dbname=gis --command "ALTER TABLE spatial_ref_sys OWNER TO docker;" &&\
@@ -51,25 +51,20 @@ RUN /etc/init.d/postgresql start && osm2pgsql -d gis --create --slim  -G --hstor
   -S ~/src/openstreetmap-carto/openstreetmap-carto.style ~/data/massachusetts-latest.osm.pbf &&\
   /etc/init.d/postgresql stop
 
-#configure apache and renderd
+#configure renderd
 USER root
-RUN sed -i 's/XML=\/home\/jburgess\/osm\/svn\.openstreetmap\.org\/applications\/rendering\/mapnik\/osm\-local\.xml/XML=\/var\/lib\/postgresql\/src\/openstreetmap-carto\/mapnik.xml/' /usr/local/etc/renderd.conf
-RUN sed -i 's/HOST=tile\.openstreetmap\.org/HOST=localhost/' /usr/local/etc/renderd.conf
-RUN sed -i 's/plugins_dir=\/usr\/lib\/mapnik\/input/plugins_dir=\/usr\/lib\/mapnik\/3.0\/input\//' /usr/local/etc/renderd.conf
-RUN sed -i '/^;/ d' /usr/local/etc/renderd.conf
+COPY etc/renderd.conf /usr/local/etc/renderd.conf
 RUN mkdir /var/lib/mod_tile && chown postgres:postgres /var/lib/mod_tile
 RUN mkdir /var/run/renderd && chown postgres:postgres /var/run/renderd
+COPY etc/default_renderd.sh /etc/default/renderd
+RUN cp ~postgres/src/mod_tile/debian/renderd.init /etc/init.d/renderd && chmod a+x /etc/init.d/renderd
+RUN rm /etc/apache2/sites-enabled/000-default.conf
+
+# configure apache
 RUN echo "LoadModule tile_module /usr/lib/apache2/modules/mod_tile.so" > /etc/apache2/mods-available/mod_tile.load
 RUN ln -s /etc/apache2/mods-available/mod_tile.load /etc/apache2/mods-enabled/
-RUN sed -i '/<\/VirtualHost>/ i \
-LoadTileConfigFile \/usr\/local\/etc\/renderd.conf \n \
-ModTileRenderdSocketName \/var\/run\/renderd\/renderd.sock \n \
-ModTileRequestTimeout 0 \n \
-ModTileMissingRequestTimeout 30' /etc/apache2/sites-enabled/000-default.conf
-RUN sed -i 's/DAEMON=\/usr\/bin\/$NAME/DAEMON=\/usr\/local\/bin\/$NAME/' ~postgres/src/mod_tile/debian/renderd.init 
-RUN sed -i 's/DAEMON_ARGS=""/DAEMON_ARGS=" -c \/usr\/local\/etc\/renderd.conf"/' ~postgres/src/mod_tile/debian/renderd.init 
-RUN sed -i 's/RUNASUSER=www-data/RUNASUSER=postgres/' ~postgres/src/mod_tile/debian/renderd.init 
-RUN cp ~postgres/src/mod_tile/debian/renderd.init /etc/init.d/renderd && chmod a+x /etc/init.d/renderd
+COPY etc/apache2_renderd.conf /etc/apache2/sites-available/renderd.conf
+RUN ln -s /etc/apache2/sites-available/renderd.conf /etc/apache2/sites-enabled/renderd.conf
 
 # test page
 COPY ./index.html /var/www/html/
