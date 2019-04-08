@@ -22,7 +22,7 @@ RUN /etc/init.d/postgresql start &&\
 USER root
 RUN git clone git://github.com/openstreetmap/osm2pgsql.git ~postgres/src/osm2pgsql --depth 1
 RUN apt-get -y install make cmake g++ libboost-dev libboost-system-dev libboost-filesystem-dev libexpat1-dev\
-  zlib1g-dev libbz2-dev libpq-dev libgeos-dev libgeos++-dev libproj-dev lua5.2 liblua5.2-dev
+  zlib1g-dev libbz2-dev libpq-dev libgeos-dev libgeos++-dev libproj-dev lua5.2 liblua5.2-dev osmium-tool
 RUN cd ~postgres/src/osm2pgsql && mkdir build && cd build && cmake .. && make && make install
 
 #install Mapnik
@@ -45,10 +45,15 @@ RUN apt-get -y install fonts-noto-cjk fonts-noto-hinted fonts-noto-unhinted ttf-
 #load data
 USER postgres
 RUN mkdir ~/data && cd ~/data &&\
-  wget http://download.geofabrik.de/north-america/us/massachusetts-latest.osm.pbf
+  wget http://download.geofabrik.de/north-america/us/massachusetts-latest.osm.pbf &&\
+  wget http://download.geofabrik.de/north-america/us/rhode-island-latest.osm.pbf
+
+#merge map files
+RUN osmium merge -v --progress ~/data/massachusetts-latest.osm.pbf ~/data/rhode-island-latest.osm.pbf -o ~/data/merged.osm.pbf
+
 RUN /etc/init.d/postgresql start && osm2pgsql -d gis --create --slim  -G --hstore --tag-transform-script\
   ~/src/openstreetmap-carto/openstreetmap-carto.lua -C 5000 --number-processes 4\
-  -S ~/src/openstreetmap-carto/openstreetmap-carto.style ~/data/massachusetts-latest.osm.pbf &&\
+  -S ~/src/openstreetmap-carto/openstreetmap-carto.style ~/data/merged.osm.pbf &&\
   /etc/init.d/postgresql stop
 
 #configure renderd
