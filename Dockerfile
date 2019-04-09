@@ -37,10 +37,11 @@ RUN cd ~postgres/src/mod_tile && ./autogen.sh && ./configure && make && make ins
 RUN git clone git://github.com/gravitystorm/openstreetmap-carto.git ~postgres/src/openstreetmap-carto --depth 1
 RUN apt-get install -y npm nodejs
 RUN npm install -g carto && cd ~postgres/src/openstreetmap-carto && ./scripts/get-shapefiles.py && carto project.mml > mapnik.xml
+RUN sed -i 's^<Font face-name="unifont Medium" />^^' ~postgres/src/openstreetmap-carto/mapnik.xml
 RUN chown -R postgres:postgres ~postgres/
 
 #install fonts
-RUN apt-get -y install fonts-noto-cjk fonts-noto-hinted fonts-noto-unhinted ttf-unifont
+RUN apt-get -y install fonts-noto-cjk fonts-noto-cjk fonts-noto-hinted fonts-noto-unhinted fonts-hanazono ttf-unifont
 
 #load data
 USER postgres
@@ -71,6 +72,10 @@ RUN ln -s /etc/apache2/mods-available/mod_tile.load /etc/apache2/mods-enabled/
 COPY etc/apache2_renderd.conf /etc/apache2/sites-available/renderd.conf
 RUN ln -s /etc/apache2/sites-available/renderd.conf /etc/apache2/sites-enabled/renderd.conf
 
+# additional fonts requred for pre-rendering
+RUN cd /usr/share/fonts/truetype/noto/ && \
+  wget https://github.com/googlei18n/noto-emoji/raw/master/fonts/NotoEmoji-Regular.ttf 
+
 # test page
 COPY ./index.html /var/www/html/
 # health check
@@ -79,4 +84,15 @@ RUN touch /var/www/html/_health
 COPY ./docker-entrypoint.sh /
 RUN chmod +x docker-entrypoint.sh
 EXPOSE 80
+
+# generate tiles
+COPY etc/generate_tiles.py /var/lib/postgresql/src/generate_tiles.py
+RUN chmod a+x /var/lib/postgresql/src/generate_tiles.py
+RUN apt-get -y install python-pip
+RUN pip install awscli
+
+USER postgres
+RUN /etc/init.d/postgresql start && /var/lib/postgresql/src/generate_tiles.py && /etc/init.d/postgresql stop
+RUN cd /var/lib/mod_tile/ && aws s3 sync . s3://mbta-map-tiles/ --size-only
+
 CMD ["/docker-entrypoint.sh"]
