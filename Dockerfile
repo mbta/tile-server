@@ -37,6 +37,7 @@ RUN cd ~postgres/src/mod_tile && ./autogen.sh && ./configure && make && make ins
 RUN git clone git://github.com/gravitystorm/openstreetmap-carto.git ~postgres/src/openstreetmap-carto --depth 1
 RUN apt-get install -y npm nodejs
 RUN npm install -g carto && cd ~postgres/src/openstreetmap-carto && ./scripts/get-shapefiles.py && carto project.mml > mapnik.xml
+# https://ircama.github.io/osm-carto-tutorials/tile-server-ubuntu/#old-unifont-medium-font
 RUN sed -i 's^<Font face-name="unifont Medium" />^^' ~postgres/src/openstreetmap-carto/mapnik.xml
 RUN chown -R postgres:postgres ~postgres/
 

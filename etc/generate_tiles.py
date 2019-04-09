@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+
+# copied from https://github.com/openstreetmap/mapnik-stylesheets/blob/master/generate_tiles.py
+
 from math import pi,cos,sin,log,exp,atan
 from subprocess import call
 import sys, os
