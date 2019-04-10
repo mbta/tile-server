@@ -32,7 +32,7 @@ if [ ! -f "${map_data_path}/merged.osm.pbf" ]; then
 fi
 
 # download shapefiles
-style_path="${HOME}/src/openstreetmap-carto"
+style_path="/style"
 if [ ! -d "${style_path}/data" ]; then
   cd "${style_path}"
   scripts/get-shapefiles.py

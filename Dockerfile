@@ -34,10 +34,13 @@ RUN git clone https://github.com/openstreetmap/mod_tile.git ~postgres/src/mod_ti
 RUN cd ~postgres/src/mod_tile && ./autogen.sh && ./configure && make && make install && make install-mod_tile && ldconfig
 
 #build carto (map style configuration)
-RUN git clone git://github.com/gravitystorm/openstreetmap-carto.git ~postgres/src/openstreetmap-carto --depth 1
 RUN apt-get install -y npm nodejs
 RUN npm install -g carto
+COPY /style /style
+
+# fix permissions
 RUN chown -R postgres:postgres ~postgres/
+RUN chown -R postgres:postgres /style
 
 #install fonts
 RUN apt-get -y install fonts-noto-cjk fonts-noto-cjk fonts-noto-hinted fonts-noto-unhinted fonts-hanazono ttf-unifont
