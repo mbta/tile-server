@@ -36,9 +36,7 @@ RUN cd ~postgres/src/mod_tile && ./autogen.sh && ./configure && make && make ins
 #build carto (map style configuration)
 RUN git clone git://github.com/gravitystorm/openstreetmap-carto.git ~postgres/src/openstreetmap-carto --depth 1
 RUN apt-get install -y npm nodejs
-RUN npm install -g carto && cd ~postgres/src/openstreetmap-carto && ./scripts/get-shapefiles.py && carto project.mml > mapnik.xml
-# https://ircama.github.io/osm-carto-tutorials/tile-server-ubuntu/#old-unifont-medium-font
-RUN sed -i 's^<Font face-name="unifont Medium" />^^' ~postgres/src/openstreetmap-carto/mapnik.xml
+RUN npm install -g carto
 RUN chown -R postgres:postgres ~postgres/
 
 #install fonts
@@ -61,7 +59,7 @@ RUN ln -s /etc/apache2/sites-available/renderd.conf /etc/apache2/sites-enabled/r
 
 # additional fonts requred for pre-rendering
 RUN cd /usr/share/fonts/truetype/noto/ && \
-  wget https://github.com/googlei18n/noto-emoji/raw/master/fonts/NotoEmoji-Regular.ttf 
+  wget https://github.com/googlei18n/noto-emoji/raw/master/fonts/NotoEmoji-Regular.ttf
 
 # generate tile scripts
 RUN apt-get -y install python-pip
@@ -69,13 +67,19 @@ RUN pip install awscli
 COPY etc/generate_tiles.py /var/lib/postgresql/src/generate_tiles.py
 RUN chmod a+x /var/lib/postgresql/src/generate_tiles.py
 
-# test page
-COPY ./index.html /var/www/html/
-# health check
+# copy test pages
+COPY ./local.html /var/www/html/
+COPY ./prod.html /var/www/html/
+COPY ./dev.html /var/www/html/
+# simulate a health check
 RUN touch /var/www/html/_health
+
+# copy map data loader script
+COPY ./load_map_data.sh /
+RUN chmod +x load_map_data.sh
 
 COPY ./docker-entrypoint.sh /
 RUN chmod +x docker-entrypoint.sh
 EXPOSE 80
 
-CMD ["/docker-entrypoint.sh"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
