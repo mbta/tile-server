@@ -7,7 +7,10 @@ service apache2 restart
 # load map data
 sudo -H -u postgres /load_map_data.sh
 
-sudo -u postgres /var/lib/postgresql/src/generate_tiles.py
-cd /var/lib/mod_tile/ && aws s3 sync . s3://mbta-map-tiles/ --size-only
+# if 'tiles' is passed as a command to run, generate and publish tiles
+if [ "$1" == "tiles" ]; then
+    sudo -u postgres /var/lib/postgresql/src/generate_tiles.py
+    cd /var/lib/mod_tile/ && aws s3 sync . s3://mbta-map-tiles/ --size-only
+fi
 
 sudo -u postgres renderd -f -c /usr/local/etc/renderd.conf
