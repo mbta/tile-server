@@ -44,20 +44,6 @@ RUN chown -R postgres:postgres ~postgres/
 #install fonts
 RUN apt-get -y install fonts-noto-cjk fonts-noto-cjk fonts-noto-hinted fonts-noto-unhinted fonts-hanazono ttf-unifont
 
-#load data
-USER postgres
-RUN mkdir ~/data && cd ~/data &&\
-  wget http://download.geofabrik.de/north-america/us/massachusetts-latest.osm.pbf &&\
-  wget http://download.geofabrik.de/north-america/us/rhode-island-latest.osm.pbf
-
-#merge map files
-RUN osmium merge -v --progress ~/data/massachusetts-latest.osm.pbf ~/data/rhode-island-latest.osm.pbf -o ~/data/merged.osm.pbf
-
-RUN /etc/init.d/postgresql start && osm2pgsql -d gis --create --slim  -G --hstore --tag-transform-script\
-  ~/src/openstreetmap-carto/openstreetmap-carto.lua -C 5000 --number-processes 4\
-  -S ~/src/openstreetmap-carto/openstreetmap-carto.style ~/data/merged.osm.pbf &&\
-  /etc/init.d/postgresql stop
-
 #configure renderd
 USER root
 COPY etc/renderd.conf /usr/local/etc/renderd.conf
@@ -77,6 +63,12 @@ RUN ln -s /etc/apache2/sites-available/renderd.conf /etc/apache2/sites-enabled/r
 RUN cd /usr/share/fonts/truetype/noto/ && \
   wget https://github.com/googlei18n/noto-emoji/raw/master/fonts/NotoEmoji-Regular.ttf 
 
+# generate tile scripts
+RUN apt-get -y install python-pip
+RUN pip install awscli
+COPY etc/generate_tiles.py /var/lib/postgresql/src/generate_tiles.py
+RUN chmod a+x /var/lib/postgresql/src/generate_tiles.py
+
 # test page
 COPY ./index.html /var/www/html/
 # health check
@@ -85,15 +77,5 @@ RUN touch /var/www/html/_health
 COPY ./docker-entrypoint.sh /
 RUN chmod +x docker-entrypoint.sh
 EXPOSE 80
-
-# generate tiles
-COPY etc/generate_tiles.py /var/lib/postgresql/src/generate_tiles.py
-RUN chmod a+x /var/lib/postgresql/src/generate_tiles.py
-RUN apt-get -y install python-pip
-RUN pip install awscli
-
-USER postgres
-RUN /etc/init.d/postgresql start && /var/lib/postgresql/src/generate_tiles.py && /etc/init.d/postgresql stop
-RUN cd /var/lib/mod_tile/ && aws s3 sync . s3://mbta-map-tiles/ --size-only
 
 CMD ["/docker-entrypoint.sh"]
