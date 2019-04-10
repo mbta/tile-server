@@ -67,9 +67,11 @@ RUN pip install awscli
 COPY etc/generate_tiles.py /var/lib/postgresql/src/generate_tiles.py
 RUN chmod a+x /var/lib/postgresql/src/generate_tiles.py
 
-# test page
-COPY ./index.html /var/www/html/
-# health check
+# copy test pages
+COPY ./local.html /var/www/html/
+COPY ./prod.html /var/www/html/
+COPY ./dev.html /var/www/html/
+# simulate a health check
 RUN touch /var/www/html/_health
 
 # copy map data loader script

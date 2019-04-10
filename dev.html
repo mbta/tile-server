@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html style="height:100%;margin:0;padding:0;">
+<title>Tile Server</title>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.3/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.3/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-hash@0.2.1/leaflet-hash.js"></script>
+<style type="text/css">
+.leaflet-tile-container { pointer-events: auto; }
+</style>
+</head>
+<body style="height:100%;margin:0;padding:0;">
+<div id="map" style="height:100%"></div>
+<script>
+//<![CDATA[
+var map = L.map('map').setView([42.35139, -71.06593], 14);
+L.tileLayer('https://mbta-map-tiles-dev.s3.amazonaws.com/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+var hash = L.hash(map)
+//]]>
+</script>
+</body>
+</html>
