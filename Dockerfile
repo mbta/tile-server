@@ -55,10 +55,9 @@ RUN cp ~postgres/src/mod_tile/debian/renderd.init /etc/init.d/renderd && chmod a
 RUN rm /etc/apache2/sites-enabled/000-default.conf
 
 # configure apache
-RUN echo "LoadModule tile_module /usr/lib/apache2/modules/mod_tile.so" > /etc/apache2/mods-available/mod_tile.load
-RUN ln -s /etc/apache2/mods-available/mod_tile.load /etc/apache2/mods-enabled/
+RUN echo "LoadModule tile_module /usr/lib/apache2/modules/mod_tile.so" > /etc/apache2/mods-available/tile.load
+RUN a2enmod tile
 COPY etc/apache2_renderd.conf /etc/apache2/sites-available/renderd.conf
-RUN ln -s /etc/apache2/sites-available/renderd.conf /etc/apache2/sites-enabled/renderd.conf
 
 # additional fonts requred for pre-rendering
 RUN cd /usr/share/fonts/truetype/noto/ && \

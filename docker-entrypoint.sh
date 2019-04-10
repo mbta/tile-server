@@ -2,7 +2,6 @@
 set -e
 
 service postgresql start
-service apache2 restart
 
 # load map data
 sudo -H -u postgres /load_map_data.sh
@@ -15,4 +14,6 @@ if [ "$1" == "tiles" ]; then
     fi
 fi
 
+a2ensite renderd
+service apache2 restart
 sudo -u postgres renderd -f -c /usr/local/etc/renderd.conf
