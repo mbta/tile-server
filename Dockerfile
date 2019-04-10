@@ -38,6 +38,9 @@ RUN apt-get install -y npm nodejs
 RUN npm install -g carto
 COPY /style /style
 
+# install kosmtik
+RUN npm -g install kosmtik
+
 # fix permissions
 RUN chown -R postgres:postgres ~postgres/
 RUN chown -R postgres:postgres /style
@@ -57,7 +60,10 @@ RUN rm /etc/apache2/sites-enabled/000-default.conf
 # configure apache
 RUN echo "LoadModule tile_module /usr/lib/apache2/modules/mod_tile.so" > /etc/apache2/mods-available/tile.load
 RUN a2enmod tile
+RUN a2enmod proxy
+RUN a2enmod proxy_http
 COPY etc/apache2_renderd.conf /etc/apache2/sites-available/renderd.conf
+COPY etc/apache2_kosmtik.conf /etc/apache2/sites-available/kosmtik.conf
 
 # additional fonts requred for pre-rendering
 RUN cd /usr/share/fonts/truetype/noto/ && \
