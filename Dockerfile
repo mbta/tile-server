@@ -36,7 +36,7 @@ RUN cd ~postgres/src/mod_tile && ./autogen.sh && ./configure && make && make ins
 #build carto (map style configuration)
 RUN apt-get install -y npm nodejs
 RUN npm install -g carto
-COPY /style /style
+COPY style /style
 
 # install kosmtik
 RUN npm -g install kosmtik
