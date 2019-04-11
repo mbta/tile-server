@@ -34,10 +34,16 @@ RUN git clone https://github.com/openstreetmap/mod_tile.git ~postgres/src/mod_ti
 RUN cd ~postgres/src/mod_tile && ./autogen.sh && ./configure && make && make install && make install-mod_tile && ldconfig
 
 #build carto (map style configuration)
-RUN git clone git://github.com/gravitystorm/openstreetmap-carto.git ~postgres/src/openstreetmap-carto --depth 1
 RUN apt-get install -y npm nodejs
 RUN npm install -g carto
+COPY style /style
+
+# install kosmtik
+RUN npm -g install kosmtik
+
+# fix permissions
 RUN chown -R postgres:postgres ~postgres/
+RUN chown -R postgres:postgres /style
 
 #install fonts
 RUN apt-get -y install fonts-noto-cjk fonts-noto-cjk fonts-noto-hinted fonts-noto-unhinted fonts-hanazono ttf-unifont
@@ -52,10 +58,12 @@ RUN cp ~postgres/src/mod_tile/debian/renderd.init /etc/init.d/renderd && chmod a
 RUN rm /etc/apache2/sites-enabled/000-default.conf
 
 # configure apache
-RUN echo "LoadModule tile_module /usr/lib/apache2/modules/mod_tile.so" > /etc/apache2/mods-available/mod_tile.load
-RUN ln -s /etc/apache2/mods-available/mod_tile.load /etc/apache2/mods-enabled/
+RUN echo "LoadModule tile_module /usr/lib/apache2/modules/mod_tile.so" > /etc/apache2/mods-available/tile.load
+RUN a2enmod tile
+RUN a2enmod proxy
+RUN a2enmod proxy_http
 COPY etc/apache2_renderd.conf /etc/apache2/sites-available/renderd.conf
-RUN ln -s /etc/apache2/sites-available/renderd.conf /etc/apache2/sites-enabled/renderd.conf
+COPY etc/apache2_kosmtik.conf /etc/apache2/sites-available/kosmtik.conf
 
 # additional fonts requred for pre-rendering
 RUN cd /usr/share/fonts/truetype/noto/ && \

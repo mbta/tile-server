@@ -1,0 +1,4 @@
+# ignore style rendering data
+style/data
+style/mapnik.xml
+style/tmp

@@ -2,10 +2,21 @@
 set -e
 
 service postgresql start
-service apache2 restart
 
 # load map data
 sudo -H -u postgres /load_map_data.sh
+
+# make sure all apache sites are disabled to start
+for site in `ls -1 /etc/apache2/sites-enabled`; do
+    a2dissite "${site#\.conf}"
+done
+
+# if 'kosmtik' is passed as a command to run, enter style editing mode
+if [ "$1" == "kosmtik" ]; then
+    a2ensite kosmtik
+    service apache2 restart
+    sudo -H -u postgres kosmtik serve /style/project.mml
+fi
 
 # if 'tiles' is passed as a command to run, generate and publish tiles
 if [ "$1" == "tiles" ]; then
@@ -15,4 +26,9 @@ if [ "$1" == "tiles" ]; then
     fi
 fi
 
-sudo -u postgres renderd -f -c /usr/local/etc/renderd.conf
+# if no commands were passed, run renderd
+if [ "$#" -eq 0 ]; then
+    a2ensite renderd
+    service apache2 restart
+    sudo -u postgres renderd -f -c /usr/local/etc/renderd.conf
+fi
