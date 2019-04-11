@@ -35,7 +35,7 @@ fi
 style_path="/style"
 if [ ! -d "${style_path}/data" ]; then
   cd "${style_path}"
-  scripts/get-shapefiles.py
+  bin/get-shapefiles.py
 fi
 # generate mapnik.xml
 if [ ! -f "${style_path}/mapnik.xml" ]; then
