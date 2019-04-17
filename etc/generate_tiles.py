@@ -232,4 +232,4 @@ if __name__ == "__main__":
         print "ERROR: Uable to parse AWS Batch variables"
         raise TypeError(t)
 
-    render_tiles(bbox, mapfile, tile_dir, 1, 10, "MBTA", 4)
+    render_tiles(bbox, mapfile, tile_dir, 1, 18, "MBTA", 4)
