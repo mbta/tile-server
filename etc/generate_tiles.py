@@ -221,7 +221,6 @@ if __name__ == "__main__":
         tile_dir = tile_dir + '/'
 
     try: 
-        print(os.environ)
         thread_count = int(os.environ['AWS_BATCH_JOB_COUNT'])
         current_thread = int(os.environ['AWS_BATCH_JOB_ARRAY_INDEX'])
         bbox = slice_map(thread_count, current_thread)
