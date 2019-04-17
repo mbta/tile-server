@@ -230,6 +230,6 @@ if __name__ == "__main__":
         bbox = slice_map(thread_count=1, current_thread=0)
     except ValueError, t:
         print "ERROR: Uable to parse AWS Batch variables"
-        raise TypeError(t)
+        raise ValueError(t)
 
     render_tiles(bbox, mapfile, tile_dir, 1, 18, "MBTA", 4)
