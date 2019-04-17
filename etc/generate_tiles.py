@@ -191,7 +191,21 @@ def render_tiles(bbox, mapfile, tile_dir, minZoom=1,maxZoom=18, name="unknown", 
     for i in range(num_threads):
         renderers[i].join()
 
+def slice_map(thread_count, current_thread):
+    LON_START = -72
+    LAT_START = 41.2
+    LON_END = -69.8
+    LAT_END = 43
 
+    # we can try to implement more complex logic later but for now let's just slice map into horizontal areas
+    dY = (LAT_END - LAT_START) / thread_count
+
+    return (
+        LON_START, 
+        LAT_START + dY * current_thread, # index starts at zero
+        LON_END, 
+        LAT_START + dY * (current_thread + 1)
+    )
 
 if __name__ == "__main__":
     try:
@@ -206,5 +220,16 @@ if __name__ == "__main__":
     if not tile_dir.endswith('/'):
         tile_dir = tile_dir + '/'
 
-    bbox = (-72, 41.2, -69.8, 43)
-    render_tiles(bbox, mapfile, tile_dir, 1, 18, "MBTA", 4)
+    try: 
+        print(os.environ)
+        thread_count = int(os.environ['AWS_BATCH_JOB_COUNT'])
+        current_thread = int(os.environ['AWS_BATCH_JOB_ARRAY_INDEX'])
+        bbox = slice_map(thread_count, current_thread)
+    except KeyError:
+        print "WARN: AWS Batch variables were not set, running in single-threaded mode"
+        bbox = slice_map(thread_count=1, current_thread=0)
+    except ValueError, t:
+        print "ERROR: Uable to parse AWS Batch variables"
+        raise TypeError(t)
+
+    render_tiles(bbox, mapfile, tile_dir, 1, 10, "MBTA", 4)
