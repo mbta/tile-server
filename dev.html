@@ -14,7 +14,7 @@
 <script>
 //<![CDATA[
 var map = L.map('map').setView([42.35139, -71.06593], 14);
-L.tileLayer('https://mbta-map-tiles-dev.s3.amazonaws.com/{z}/{x}/{y}.png', {
+L.tileLayer('https://mbta-map-tiles-dev.s3.amazonaws.com/osm_tiles/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 var hash = L.hash(map)
