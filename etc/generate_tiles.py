@@ -221,14 +221,14 @@ if __name__ == "__main__":
         tile_dir = tile_dir + '/'
 
     try: 
-        thread_count = int(os.environ['AWS_BATCH_JOB_COUNT'])
+        thread_count = int(os.environ['BATCH_JOB_COUNT'])
         current_thread = int(os.environ['AWS_BATCH_JOB_ARRAY_INDEX'])
         bbox = slice_map(thread_count, current_thread)
     except KeyError:
         print "WARN: AWS Batch variables were not set, running in single-threaded mode"
         bbox = slice_map(thread_count=1, current_thread=0)
     except ValueError, t:
-        print "ERROR: Uable to parse AWS Batch variables"
+        print "ERROR: Unable to parse AWS Batch variables"
         raise ValueError(t)
 
     render_tiles(bbox, mapfile, tile_dir, 1, 18, "MBTA", 4)
