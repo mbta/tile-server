@@ -36,14 +36,9 @@ RUN cd ~postgres/src/mod_tile && ./autogen.sh && ./configure && make && make ins
 #build carto (map style configuration)
 RUN apt-get install -y npm nodejs
 RUN npm install -g carto
-COPY style /style
 
 # install kosmtik
 RUN npm -g install kosmtik
-
-# fix permissions
-RUN chown -R postgres:postgres ~postgres/
-RUN chown -R postgres:postgres /style
 
 #install fonts
 RUN apt-get -y install fonts-noto-cjk fonts-noto-cjk fonts-noto-hinted fonts-noto-unhinted fonts-hanazono ttf-unifont
@@ -75,6 +70,15 @@ RUN pip install awscli
 COPY etc/generate_tiles.py /var/lib/postgresql/src/generate_tiles.py
 RUN chmod a+x /var/lib/postgresql/src/generate_tiles.py
 
+# install tilemill
+RUN git clone https://github.com/tilemill-project/tilemill.git ~postgres/src/tilemill --depth 1
+RUN cd ~postgres/src/tilemill && npm install
+
+# install and configure styles 
+RUN git clone https://github.com/jacobtoye/osm-bright.git /style --depth 1
+COPY etc/configure.py /style/configure.py
+COPY etc/osm-smartrak.osm2pgsql.mml /style/themes/osm-smartrak/osm-smartrak.osm2pgsql.mml
+
 # copy test pages
 COPY ./local.html /var/www/html/
 COPY ./prod.html /var/www/html/
@@ -85,6 +89,10 @@ RUN touch /var/www/html/_health
 # copy map data loader script
 COPY ./load_map_data.sh /
 RUN chmod +x load_map_data.sh
+
+# fix permissions
+RUN chown -R postgres:postgres ~postgres/
+RUN chown -R postgres:postgres /style
 
 COPY ./docker-entrypoint.sh /
 RUN chmod +x docker-entrypoint.sh
