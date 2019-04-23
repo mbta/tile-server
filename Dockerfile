@@ -41,7 +41,8 @@ RUN npm install -g carto
 RUN npm -g install kosmtik
 
 #install fonts
-RUN apt-get -y install fonts-noto-cjk fonts-noto-cjk fonts-noto-hinted fonts-noto-unhinted fonts-hanazono ttf-unifont
+RUN apt-get -y install fonts-noto-cjk fonts-noto-cjk fonts-noto-hinted fonts-noto-unhinted fonts-hanazono ttf-unifont\
+  ttf-dejavu ttf-dejavu-core ttf-dejavu-extra cabextract
 
 #configure renderd
 USER root
@@ -79,6 +80,10 @@ RUN git clone https://github.com/jacobtoye/osm-bright.git /style --depth 1
 COPY etc/configure.py /style/configure.py
 COPY etc/osm-smartrak.osm2pgsql.mml /style/themes/osm-smartrak/osm-smartrak.osm2pgsql.mml
 
+# fix permissions
+RUN chown -R postgres:postgres ~postgres/
+RUN chown -R postgres:postgres /style
+
 # copy test pages
 COPY ./local.html /var/www/html/
 COPY ./prod.html /var/www/html/
@@ -89,10 +94,6 @@ RUN touch /var/www/html/_health
 # copy map data loader script
 COPY ./load_map_data.sh /
 RUN chmod +x load_map_data.sh
-
-# fix permissions
-RUN chown -R postgres:postgres ~postgres/
-RUN chown -R postgres:postgres /style
 
 COPY ./docker-entrypoint.sh /
 RUN chmod +x docker-entrypoint.sh
