@@ -32,25 +32,31 @@ if [ ! -f "${map_data_path}/merged.osm.pbf" ]; then
 fi
 
 # download shapefiles
-style_path="/style"
-if [ ! -d "${style_path}/data" ]; then
-  cd "${style_path}"
-  bin/get-shapefiles.py
-fi
-# generate mapnik.xml
-if [ ! -f "${style_path}/mapnik.xml" ]; then
-  cd "${style_path}"
-  carto project.mml > mapnik.xml
-  # https://ircama.github.io/osm-carto-tutorials/tile-server-ubuntu/#old-unifont-medium-font
-  sed -i 's^<Font face-name="unifont Medium" />^^' mapnik.xml
+shape_path="/style/shp"
+if [ ! -d "${shape_path}" ]; then
+  mkdir "${shape_path}" 
+  cd "${shape_path}"
+  wget http://mapbox-geodata.s3.amazonaws.com/natural-earth-1.3.0/physical/10m-land.zip
+  wget http://tilemill-data.s3.amazonaws.com/osm/coastline-good.zip
+  wget http://tilemill-data.s3.amazonaws.com/osm/shoreline_300.zip
+  wget http://mapbox-geodata.s3.amazonaws.com/natural-earth-1.4.0/cultural/10m-populated-places-simple.zip
+  unzip "*.zip"
+  find -iname '*.shp' -execdir shapeindex {} \;
+  mkdir /style/output
+  cd /style && ./make.py
+  cd /style/output/OSMSmartrak && carto project.mml > mapnik.xml
+  # additional fonts requred for tile generation
+  cp -R /style/themes/osm-bright/fonts /style/output/OSMSmartrak/
+  cd /style/output/OSMSmartrak/fonts && wget "https://assets.ubuntu.com/v1/fad7939b-ubuntu-font-family-0.83.zip"
+  unzip "fad7939b-ubuntu-font-family-0.83.zip" && cd ubuntu-font-family-* && cp * ../
+  cd /style/output/OSMSmartrak/fonts && wget "https://www.freedesktop.org/software/fontconfig/webfonts/webfonts.tar.gz"
+  tar -xzf webfonts.tar.gz && cd msfonts && cabextract *.exe && cp *.ttf *.TTF /style/output/OSMSmartrak/fonts/
+  cd /style/output/OSMSmartrak && sed -i 's^<Font face-name="unifont Medium" />^^' mapnik.xml
 fi
 
 # populate database
 if [ `psql -t --dbname="gis" --command="SELECT COUNT(*) from information_schema.tables WHERE table_name LIKE 'planet_osm_%';"` -eq 0 ]; then
-  osm2pgsql -d gis --create --slim -G --hstore \
-  --tag-transform-script "${style_path}/openstreetmap-carto.lua" \
-    -C 5000 --number-processes 4 \
-    -S "${style_path}/openstreetmap-carto.style" "${map_data_path}/merged.osm.pbf"
+  osm2pgsql -d gis --create --slim -G --hstore -C 5000 --number-processes 4 "${map_data_path}/merged.osm.pbf"
 fi
 
 # touch the flagfile at the end to verify completion
