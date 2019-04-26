@@ -79,6 +79,7 @@ RUN cd ~postgres/src/tilemill && npm install
 RUN git clone https://github.com/jacobtoye/osm-bright.git /style --depth 1
 COPY etc/configure.py /style/configure.py
 COPY etc/osm-smartrak.osm2pgsql.mml /style/themes/osm-smartrak/osm-smartrak.osm2pgsql.mml
+COPY etc/palette.mss /style/themes/osm-smartrak/palette.mss
 
 # fix permissions
 RUN chown -R postgres:postgres ~postgres/
