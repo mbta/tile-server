@@ -22,7 +22,11 @@ fi
 if [ "$1" == "tiles" ]; then
     sudo -E -u postgres /var/lib/postgresql/src/generate_tiles.py
     if [ -n "${MAPNIK_TILE_S3_BUCKET}" ]; then
-        cd /var/lib/mod_tile/ && aws s3 sync . "s3://${MAPNIK_TILE_S3_BUCKET}/osm_tiles/" --size-only
+        if [ "${S3_FORCE_OVERWRITE}" == "1" ]; then
+            cd /var/lib/mod_tile/ && aws s3 sync . "s3://${MAPNIK_TILE_S3_BUCKET}/osm_tiles/"
+        else
+            cd /var/lib/mod_tile/ && aws s3 sync . "s3://${MAPNIK_TILE_S3_BUCKET}/osm_tiles/" --size-only
+        fi
         echo "AWS S3 sync has completed successfully"
     fi
 fi
