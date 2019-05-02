@@ -58,8 +58,14 @@ $ docker run --tty \
 
 ### Build & Publish Tiles
 
-To generate all tile images at once, append `tiles` to the `docker run` command. You can also upload them directly to S3 by declaring the necessary environment variables.
+To generate all tile images at once, append `tiles` to the `docker run` command. You can also upload them directly to S3 by declaring the necessary environment variables:
+* `MAPNIK_TILE_S3_BUCKET`: S3 bucket to upload tiles
+* `AWS_ACCESS_KEY_ID`: AWS access key ID
+* `AWS_SECRET_ACCESS_KEY`: AWS access key
+* `S3_FORCE_OVERWRITE`: controls how files are uploaded to S3; if set to "1" then all files will be uploaded, otherwise only the changed files will be uploaded. Whether the file has been changed is determined by the file size. It is recommended to set this flag whenever map style is modified, because if the only thing that is changed for a map tile is its color, then the file size is going to remain the same and the tile is not going to be uploaded
 
+
+Example: 
 ```bash
 $ docker run --tty \
     --name="tile-server" \
@@ -67,5 +73,6 @@ $ docker run --tty \
     --env MAPNIK_TILE_S3_BUCKET="my-s3-bucket-name" \
     --env AWS_ACCESS_KEY_ID="my-aws-access-key-id" \
     --env AWS_SECRET_ACCESS_KEY="my-aws-secret-access-key" \
+    --env S3_FORCE_OVERWRITE="1" \
     --publish="80:80" tile-server tiles
 ```
