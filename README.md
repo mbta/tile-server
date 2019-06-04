@@ -94,7 +94,7 @@ Next step is to launch the AWS batch job(s) to generate the tiles through the up
 
 The idea behind running the jobs in AWS batch is that we split the _service area_ into horizontal (East-West) stripes and generate tiles for each of those map stripes independently. Since there is no overlap, the execution can be parallelized and we can have as many parallel jobs as we see necessary. 
 
-Important thing to note is that the service area only make sense if we have the map data for it. Currently we have map data for MA, RI and CT, so if you need service area to cover any other territories, you need to add map data first ([example PR](https://github.com/mbta/tile-server/pull/12/files)).
+Important thing to note is that the service area only make sense if we have the map data for it. Currently we have map data for MA, RI and NH, so if you need service area to cover any other territories, you need to add map data first ([example PR](https://github.com/mbta/tile-server/pull/12/files)).
 
 In order to launch AWS Batch jobs, do the following:
 * Login into AWS Console and navigate to AWS Batch: https://console.aws.amazon.com/batch/
