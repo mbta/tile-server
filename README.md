@@ -107,7 +107,7 @@ In order to launch AWS Batch jobs, do the following:
   * Specify number of jobs to be run as parallel in Array Size field. If you don't know how many you need, put `8`. It took 5-6 hours for 8 jobs to generate the tiles for entire service area up to maximum zoom level (18) during previous tests. 
   * Navigate to **Environment variables** section and make sure that we have both mandatory variables set to correct values:
     * `MAPNIK_TILE_S3_BUCKET`: should correspond with the target S3 bucket; `mbta-map-tiles-dev` for dev environment or `mbta-map-tiles` for production environment. If you want to upload files to different bucket, you can specify it here as well, but make sure that batch jobs have permissions to write there. 
-    * **Important**: `BATCH_JOB_COUNT`: should be equal to what you specified in Array Size field. Failure to set the right value here will result in either missing tiles or in overal between the jobs (they are going to generate the same tiles).
+    * **Important**: `BATCH_JOB_COUNT`: should be equal to what you specified in Array Size field. Failure to set the right value here will result in either missing tiles or in overlap between the jobs (they are going to generate the same tiles).
   * Click "Submit Job" and wait for jobs to run. You can also check Cloud Watch logs, while the jobs are running. Links to those logs are available from the Jobs page. 
 
 These steps should also normally be set up to run in CI system, but at the time of writing this we don't have one, so they need to be executed manually. 
