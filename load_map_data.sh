@@ -23,11 +23,13 @@ if [ ! -f "${map_data_path}/merged.osm.pbf" ]; then
   cd "${map_data_path}"
   wget http://download.geofabrik.de/north-america/us/massachusetts-latest.osm.pbf
   wget http://download.geofabrik.de/north-america/us/rhode-island-latest.osm.pbf
+  wget http://download.geofabrik.de/north-america/us/new-hampshire-latest.osm.pbf
 
   # merge map data
   osmium merge -v --progress \
     "${map_data_path}/massachusetts-latest.osm.pbf" \
     "${map_data_path}/rhode-island-latest.osm.pbf" \
+    "${map_data_path}/new-hampshire-latest.osm.pbf" \
     -o "${map_data_path}/merged.osm.pbf"
 fi
 
