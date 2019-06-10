@@ -104,7 +104,7 @@ In order to launch AWS Batch jobs, do the following:
 * Click Actions -> Submit job
 * On the next screen do the following:
   * Specify job name, which describes current job the best (no special requirements for the name)
-  * Specify `tile-generation-dev-queue` as the job queue name
+  * Specify `tile-generation-dev-queue` (dev environment) or `tile-generation-prod-queue` (production environment) as the job queue name
   * Specify **Array** as job type
   * Specify number of jobs to be run as parallel in Array Size field. If you don't know how many you need, put `8`. It took 5-6 hours for 8 jobs to generate the tiles for entire service area up to maximum zoom level (18) during previous tests
   * Navigate to **Environment variables** section and make sure that we `BATCH_JOB_COUNT` variable is set to correct values -- it should be equal to what you specified in Array Size field. Failure to set the right value here will result in either missing tiles or in overlap between the jobs (they are going to generate the same tiles)
