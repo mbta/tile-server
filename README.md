@@ -76,3 +76,38 @@ $ docker run --tty \
     --env S3_FORCE_OVERWRITE="1" \
     --publish="80:80" tile-server tiles
 ```
+
+### Publishing Tiles through AWS Batch
+
+To generate tiles for production usage we use [AWS Batch tool](https://aws.amazon.com/batch/), which allows to execute multiple similar jobs in parallel. In order to use AWS Batch, the first prerequisite is to push the docker image into AWS ECR Repository. Tile server image is already there so this step is only required in case if you have done any changes to the image (that is, changes to dockerfiles itself or to the files used by it). In order to push the image to ECR Repository, execute following commands: 
+
+* `$(aws ecr get-login --no-include-email --region us-east-1)`: login to ECR
+* `docker build -t tile-server .`: build tile server docker image
+* `docker tag tile-server:latest 434035161053.dkr.ecr.us-east-1.amazonaws.com/tile-server:latest`: tag the image with the version called "latest"
+* `docker push 434035161053.dkr.ecr.us-east-1.amazonaws.com/tile-server:latest`: push (upload) docker image to the repository
+
+These steps should normally be set up to run in CI system, but at the time of writing this we don't have one, so they need to be executed manually. 
+
+
+
+Next step is to launch the AWS batch job(s) to generate the tiles through the uploaded docker image. Tiles are generated for a _service area_ defined in the source code: [generate_tiles.py](https://github.com/mbta/tile-server/blob/master/etc/generate_tiles.py#L195-L198). This area roughtly represents the area, which customers are believed to expect to see on the maps on the mbta.com website. If you change the area in the source code -- or do any other change there -- you need to rebuild the docker image and push it to the ECR repo (see above).
+
+The idea behind running the jobs in AWS batch is that we split the _service area_ into horizontal (East-West) stripes and generate tiles for each of those map stripes independently. Since there is no overlap, the execution can be parallelized and we can have as many parallel jobs as we see necessary. 
+
+Important thing to note is that the service area only make sense if we have the map data for it. Currently we have map data for MA, RI and NH, so if you need service area to cover any other territories, you need to add map data first ([example PR](https://github.com/mbta/tile-server/pull/12/files)).
+
+In order to launch AWS Batch jobs, do the following:
+* Login into AWS Console and navigate to AWS Batch: https://console.aws.amazon.com/batch/
+* Go to "Job Definitions" section, click on the job name and then on the radio-button corresponding to the latest revision. 
+  * Use `tile-generation-dev` for dev environment
+  * Use `tile-generation-prod` for production environment
+* Click Actions -> Submit job
+* On the next screen do the following:
+  * Specify job name, which describes current job the best (no special requirements for the name)
+  * Specify `tile-generation-dev-queue` (dev environment) or `tile-generation-prod-queue` (production environment) as the job queue name
+  * Specify **Array** as job type
+  * Specify number of jobs to be run as parallel in Array Size field. If you don't know how many you need, put `8`. It took 5-6 hours for 8 jobs to generate the tiles for entire service area up to maximum zoom level (18) during previous tests
+  * Navigate to **Environment variables** section and make sure that we `BATCH_JOB_COUNT` variable is set to correct values -- it should be equal to what you specified in Array Size field. Failure to set the right value here will result in either missing tiles or in overlap between the jobs (they are going to generate the same tiles)
+  * Click "Submit Job" and wait for jobs to run. You can also check CloudWatch logs, while the jobs are running. Links to those logs are available from the Jobs page. In addition, to CloudWatch logs we have slack notifications about jobs starting and completing in [#tile-server](https://mbtace.slack.com/messages/CHXHTUGMU) channel. 
+
+These steps should also normally be set up to run in CI system, but at the time of writing this we don't have one, so they need to be executed manually. 
