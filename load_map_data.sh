@@ -21,9 +21,10 @@ map_data_path="${HOME}/data"
 if [ ! -f "${map_data_path}/merged.osm.pbf" ]; then
   mkdir "${map_data_path}"
   cd "${map_data_path}"
-  wget http://download.geofabrik.de/north-america/us/massachusetts-latest.osm.pbf
-  wget http://download.geofabrik.de/north-america/us/rhode-island-latest.osm.pbf
-  wget http://download.geofabrik.de/north-america/us/new-hampshire-latest.osm.pbf
+  for filename in massachusetts-latest.osm.pbf rhode-island-latest.osm.pbf new-hampshire-latest.osm.pbf; do
+    wget --tries=100 --retry-on-http-error=429 --waitretry=100 --random-wait \
+      http://download.geofabrik.de/north-america/us/$filename
+  done
 
   # merge map data
   osmium merge -v --progress \
