@@ -8,6 +8,7 @@ import sys, os
 from Queue import Queue
 
 import threading
+import cairo
 
 try:
     import mapnik2 as mapnik
@@ -96,10 +97,10 @@ class RenderThread:
         if(self.m.buffer_size < 128):
             self.m.buffer_size = 128
 
-        # Render image with default Agg renderer
-        im = mapnik.Image(render_size, render_size)
-        mapnik.render(self.m, im)
-        im.save(tile_uri, 'png256')
+        # Render SVG using cairo
+        surface = cairo.SVGSurface(tile_uri, self.m.width, self.m.height)
+        mapnik.render(self.m, surface)
+        surface.finish()
 
 
     def loop(self):
@@ -175,7 +176,7 @@ def render_tiles(bbox, mapfile, tile_dir, minZoom=1,maxZoom=18, name="unknown", 
                     str_y = "%s" % ((2**z-1) - y)
                 else:
                     str_y = "%s" % y
-                tile_uri = tile_dir + zoom + '/' + str_x + '/' + str_y + '.png'
+                tile_uri = tile_dir + zoom + '/' + str_x + '/' + str_y + '.svg'
                 # Submit tile to be rendered into the queue
                 t = (name, tile_uri, x, y, z)
                 try:
