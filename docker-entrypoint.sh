@@ -1,6 +1,16 @@
 #!/bin/bash
 set -e
 
+# if 'copy' is passed as a command to run, just copy tiles between buckets and exit
+if [ "$1" == "copy" ]; then
+    if [ -n "${SOURCE_S3_PATH}" -a -n "${DESTINATION_S3_PATH}" ]; then
+        aws s3 sync "${SOURCE_S3_PATH}" "${DESTINATION_S3_PATH}"
+    else
+        echo "Error: SOURCE_S3_PATH and DESTINATION_S3_PATH env vars are both required."
+    fi
+    exit
+fi
+
 service postgresql start
 
 # load map data
@@ -21,7 +31,7 @@ fi
 # if 'tiles' is passed as a command to run, generate and publish tiles
 if [ "$1" == "tiles" ]; then
     sudo -E -u postgres /var/lib/postgresql/src/generate_tiles.py
-    if [ -n "${MAPNIK_TILE_S3_BUCKET}" ]; then        
+    if [ -n "${MAPNIK_TILE_S3_BUCKET}" ]; then
         [[ "${S3_FORCE_OVERWRITE}" = "1" ]] && S3_ARGS= || S3_ARGS="--size-only"
         cd /var/lib/mod_tile/ && aws s3 sync . "s3://${MAPNIK_TILE_S3_BUCKET}/osm_tiles/" ${S3_ARGS}
         echo "AWS S3 sync has completed successfully"

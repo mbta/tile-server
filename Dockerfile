@@ -68,6 +68,7 @@ RUN cd /usr/share/fonts/truetype/noto/ && \
 # generate tile scripts
 RUN apt-get -y install python-pip
 RUN pip install awscli
+RUN aws configure set default.s3.max_concurrent_requests 100
 COPY etc/generate_tiles.py /var/lib/postgresql/src/generate_tiles.py
 RUN chmod a+x /var/lib/postgresql/src/generate_tiles.py
 
@@ -75,7 +76,7 @@ RUN chmod a+x /var/lib/postgresql/src/generate_tiles.py
 RUN git clone https://github.com/tilemill-project/tilemill.git ~postgres/src/tilemill --depth 1
 RUN cd ~postgres/src/tilemill && npm install
 
-# install and configure styles 
+# install and configure styles
 RUN git clone https://github.com/jacobtoye/osm-bright.git /style --depth 1
 COPY etc/configure.py /style/configure.py
 COPY etc/osm-smartrak.osm2pgsql.mml /style/themes/osm-smartrak/osm-smartrak.osm2pgsql.mml
