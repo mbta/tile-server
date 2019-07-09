@@ -4,7 +4,7 @@ OpenStreetMap tile server
 
 ## Purpose
 
-The goal of this repository is to facilitate the creation of a Docker container that encapsulates all the elements necessary to develop map tiles for use on MBTA.com. The resulting images are published to S3. Note that currently we only include map data for MA, RI and NH, so if you need the service area to cover any other territories, you need to add map data first ([example PR](https://github.com/mbta/tile-server/pull/12/files)).
+The goal of this repository is to facilitate the creation of a Docker container that encapsulates all the elements necessary to develop map tiles for use on MBTA.com. The resulting tile images are published to S3.
 
 ## Development
 
