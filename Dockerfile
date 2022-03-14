@@ -30,11 +30,11 @@ RUN apt-get -y install autoconf apache2-dev libtool libxml2-dev libbz2-dev libge
   libproj-dev gdal-bin libmapnik-dev mapnik-utils python-mapnik sudo
 
 #build mod_tile and renderd
-RUN git clone https://github.com/openstreetmap/mod_tile.git ~postgres/src/mod_tile --depth 1
-RUN cd ~postgres/src/mod_tile && ./autogen.sh && ./configure && make && make install && make install-mod_tile && ldconfig
+RUN git clone https://github.com/openstreetmap/mod_tile.git ~postgres/src/mod_tile
+RUN cd ~postgres/src/mod_tile && git reset fd5988fc5877c51838ad96991d6e2912cfaf7d61 --hard && ./autogen.sh && ./configure && make && make install && make install-mod_tile && ldconfig
 
 #build carto (map style configuration)
-RUN apt-get install -y npm nodejs
+RUN apt-get install -y npm nodejs node-gyp nodejs-dev libssl1.0-dev
 RUN npm install -g carto
 
 # install kosmtik
@@ -63,7 +63,7 @@ COPY etc/apache2_kosmtik.conf /etc/apache2/sites-available/kosmtik.conf
 
 # additional fonts requred for pre-rendering
 RUN cd /usr/share/fonts/truetype/noto/ && \
-  wget https://github.com/googlei18n/noto-emoji/raw/master/fonts/NotoEmoji-Regular.ttf
+  wget https://github.com/googlefonts/noto-emoji/raw/main/fonts/NotoEmoji-Regular.ttf
 
 # generate tile scripts
 RUN apt-get -y install python-pip
@@ -73,8 +73,8 @@ COPY etc/generate_tiles.py /var/lib/postgresql/src/generate_tiles.py
 RUN chmod a+x /var/lib/postgresql/src/generate_tiles.py
 
 # install tilemill
-RUN git clone https://github.com/tilemill-project/tilemill.git ~postgres/src/tilemill --depth 1
-RUN cd ~postgres/src/tilemill && npm install
+# RUN git clone https://github.com/tilemill-project/tilemill.git ~postgres/src/tilemill
+# RUN cd ~postgres/src/tilemill && git reset f04da9cfe42ddd22792031b9b1a6fe9470624bff --hard  && npm install
 
 # install and configure styles
 RUN git clone https://github.com/jacobtoye/osm-bright.git /style --depth 1
