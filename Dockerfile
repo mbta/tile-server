@@ -20,9 +20,9 @@ RUN /etc/init.d/postgresql start &&\
 
 #build osm2pgsql
 USER root
-RUN git clone git://github.com/openstreetmap/osm2pgsql.git ~postgres/src/osm2pgsql --depth 1
+RUN git clone https://github.com/openstreetmap/osm2pgsql.git ~postgres/src/osm2pgsql --depth 1
 RUN apt-get -y install make cmake g++ libboost-dev libboost-system-dev libboost-filesystem-dev libexpat1-dev\
-  zlib1g-dev libbz2-dev libpq-dev libgeos-dev libgeos++-dev libproj-dev lua5.2 liblua5.2-dev osmium-tool
+  zlib1g-dev libbz2-dev libpq-dev libgeos-dev libgeos++-dev libproj-dev lua5.2 liblua5.2-dev osmctools
 RUN cd ~postgres/src/osm2pgsql && mkdir build && cd build && cmake .. && make && make install
 
 #install Mapnik
@@ -63,7 +63,7 @@ COPY etc/apache2_kosmtik.conf /etc/apache2/sites-available/kosmtik.conf
 
 # additional fonts requred for pre-rendering
 RUN cd /usr/share/fonts/truetype/noto/ && \
-  wget https://github.com/googlefonts/noto-emoji/raw/main/fonts/NotoEmoji-Regular.ttf
+  wget https://github.com/googlefonts/noto-emoji/raw/main/fonts/NotoColorEmoji.ttf
 
 # generate tile scripts
 RUN apt-get -y install python-pip
@@ -73,8 +73,9 @@ COPY etc/generate_tiles.py /var/lib/postgresql/src/generate_tiles.py
 RUN chmod a+x /var/lib/postgresql/src/generate_tiles.py
 
 # install tilemill
-# RUN git clone https://github.com/tilemill-project/tilemill.git ~postgres/src/tilemill
-# RUN cd ~postgres/src/tilemill && git reset f04da9cfe42ddd22792031b9b1a6fe9470624bff --hard  && npm install
+RUN npm install -g npm
+RUN git clone https://github.com/tilemill-project/tilemill.git ~postgres/src/tilemill
+RUN cd ~postgres/src/tilemill && git reset f04da9cfe42ddd22792031b9b1a6fe9470624bff --hard && npm install
 
 # install and configure styles
 RUN git clone https://github.com/jacobtoye/osm-bright.git /style --depth 1
