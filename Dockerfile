@@ -72,11 +72,6 @@ RUN aws configure set default.s3.max_concurrent_requests 100
 COPY etc/generate_tiles.py /var/lib/postgresql/src/generate_tiles.py
 RUN chmod a+x /var/lib/postgresql/src/generate_tiles.py
 
-# install tilemill
-RUN npm install -g npm
-RUN git clone https://github.com/tilemill-project/tilemill.git ~postgres/src/tilemill
-RUN cd ~postgres/src/tilemill && git reset f04da9cfe42ddd22792031b9b1a6fe9470624bff --hard && npm install
-
 # install and configure styles
 RUN git clone https://github.com/jacobtoye/osm-bright.git /style --depth 1
 COPY etc/configure.py /style/configure.py

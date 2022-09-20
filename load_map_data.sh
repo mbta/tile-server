@@ -29,9 +29,9 @@ if [ ! -f "${map_data_path}/merged.osm.pbf" ]; then
   # merge map data
   # `osmium merge` allows duplicates, which did not allow us to utilize osm2pgsql 
   # in slim mode, so here we convert the files first to .o5m before merging
-  osmconvert "${map_data_path}/massachusetts-latest.osm.pbf" -o "${map_data_path}/massachusetts-latest.o5m"
-  osmconvert "${map_data_path}/rhode-island-latest.osm.pbf" -o "${map_data_path}/rhode-island-latest.o5m"
-  osmconvert "${map_data_path}/new-hampshire-latest.osm.pbf" -o "${map_data_path}/new-hampshire-latest.o5m"
+  osmconvert "${map_data_path}/massachusetts-latest.osm.pbf" -o="${map_data_path}/massachusetts-latest.o5m"
+  osmconvert "${map_data_path}/rhode-island-latest.osm.pbf" -o="${map_data_path}/rhode-island-latest.o5m"
+  osmconvert "${map_data_path}/new-hampshire-latest.osm.pbf" -o="${map_data_path}/new-hampshire-latest.o5m"
   # Merge o5m files into one pbf file:
   osmconvert \
     "${map_data_path}/massachusetts-latest.o5m" \

@@ -25,7 +25,7 @@ done
 if [ "$1" == "kosmtik" ]; then
     a2ensite kosmtik
     service apache2 restart
-    sudo -H -u postgres kosmtik serve /style/project.mml
+    sudo -H -u postgres kosmtik serve /style/output/OSMSmartrak/project.mml
 fi
 
 # if 'tiles' is passed as a command to run, generate and publish tiles
