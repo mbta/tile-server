@@ -30,6 +30,10 @@ RUN apt-get -y install autoconf apache2-dev libtool libxml2-dev libbz2-dev libge
   libproj-dev gdal-bin libmapnik-dev mapnik-utils python-mapnik sudo
 
 #build mod_tile and renderd
+# Newer commits in mod_tile remove the renderd.init file since the project is now in Debian / Ubuntu
+# official repositories, which provide their own init configuration, but those packages are only in
+# newer versions. Once we update this container to use 22.04, or another newer Ubuntu version, we can
+# install mod_tile that way and avoid having to build it ourselves entirely.
 RUN git clone https://github.com/openstreetmap/mod_tile.git ~postgres/src/mod_tile
 RUN cd ~postgres/src/mod_tile && git reset fd5988fc5877c51838ad96991d6e2912cfaf7d61 --hard && ./autogen.sh && ./configure && make && make install && make install-mod_tile && ldconfig
 
