@@ -16,6 +16,16 @@ $ docker build -t tile-server .
 
 See below for different ways to run the container once built.
 
+## Pushing Image
+
+To build the container and push it, run:
+
+```bash
+DOCKER_SERVER=[Docker server URL] build_push.sh [tag]
+```
+
+Usually, the tag argument we provide is of the form `git-[commit hash]`. The script will also apply the `latest` tag.
+
 ## Run Modes
 
 The container will load all map data automatically when started. There are four different modes for how to run it:
