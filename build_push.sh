@@ -2,18 +2,16 @@
 set -e -x -u
 
 # required configuration:
-# * APP
-# * DOCKER_REPO
+# * DOCKER_SERVER (from ECR)
 
-tag="${1:-latest}"
+app=tile-server
+tag=$1
 
 # build docker image and tag it with git hash and aws environment
-docker build -t $APP:$tag .
-docker tag $APP:$tag $DOCKER_REPO:$tag
+docker build -t $app:$tag -t $app:latest .
 
-# retrieve the `docker login` command from AWS ECR and execute it
-logincmd=$(aws ecr get-login --no-include-email --region us-east-1)
-eval $logincmd
+# retrieve the `docker login` password from AWS ECR and use it
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $DOCKER_SERVER
 
 # push images to ECS image repo
-docker push $DOCKER_REPO:$tag
+docker image push --all-tags $DOCKER_SERVER/$app
