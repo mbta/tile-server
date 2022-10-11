@@ -83,6 +83,7 @@ COPY etc/osm-smartrak.osm2pgsql.mml /style/themes/osm-smartrak/osm-smartrak.osm2
 COPY etc/palette.mss /style/themes/osm-smartrak/palette.mss
 # fix for https://github.com/mapbox/osm-bright/issues/109
 COPY etc/labels.mss /style/themes/osm-smartrak/labels.mss
+COPY etc/base.mss /style/themes/osm-smartrak/base.mss
 
 # fix permissions
 RUN chown -R postgres:postgres ~postgres/
