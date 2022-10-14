@@ -40,11 +40,11 @@ Map { font-directory: url(./fonts); }
 @land:              #f4f4f5;
 @land_low: 			#f0ede5;
 @water:             #c8c9e5;
-@grass:             #d1edca;
+@grass:             #c9e2c1;
 @beach:             #FFEEC7;
-@park:              #d1edca;
-@cemetery:          #d1edca;
-@wooded:            #d1edca;
+@park:              #c9e2c1;
+@cemetery:          #c9e2c1;
+@wooded:            #c9e2c1;
 @agriculture:       #F2E8B6;
 
 @building:          #f4f4f5;
@@ -52,7 +52,7 @@ Map { font-directory: url(./fonts); }
 @building_case:     #d3d1c8;
 @hospital:          #ebe3da;
 @school:            #f0ead6;
-@sports:            #d1edca;
+@sports:            #c9e2c1;
 
 @residential:       #f0ede5;
 @commercial:        @residential * 0.97;
