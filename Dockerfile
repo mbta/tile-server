@@ -80,10 +80,11 @@ RUN chmod a+x /var/lib/postgresql/src/generate_tiles.py
 RUN git clone https://github.com/jacobtoye/osm-bright.git /style --depth 1
 COPY etc/configure.py /style/configure.py
 COPY etc/osm-smartrak.osm2pgsql.mml /style/themes/osm-smartrak/osm-smartrak.osm2pgsql.mml
-COPY etc/palette.mss /style/themes/osm-smartrak/palette.mss
-# fix for https://github.com/mapbox/osm-bright/issues/109
-COPY etc/labels.mss /style/themes/osm-smartrak/labels.mss
-COPY etc/base.mss /style/themes/osm-smartrak/base.mss
+COPY etc/default-style/palette.mss /style/themes/default/palette.mss
+COPY etc/default-style/labels.mss /style/themes/default/labels.mss
+COPY etc/skate-style/palette.mss /style/themes/skate/palette.mss
+COPY etc/skate-style/labels.mss /style/themes/skate/labels.mss
+COPY etc/skate-style/base.mss /style/themes/skate/base.mss
 
 # fix permissions
 RUN chown -R postgres:postgres ~postgres/

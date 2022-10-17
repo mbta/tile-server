@@ -40,7 +40,11 @@ if [ ! -f "${map_data_path}/merged.osm.pbf" ]; then
     -o="${map_data_path}/merged.osm.pbf"
 fi
 
-# download shapefiles
+if [ -z "${STYLE_DIR}" ]; then
+  STYLE_DIR="default"
+fi
+
+# download shapefiles and build style
 shape_path="/style/shp"
 if [ ! -d "${shape_path}" ]; then
   mkdir "${shape_path}" 
@@ -51,6 +55,8 @@ if [ ! -d "${shape_path}" ]; then
   wget http://mapbox-geodata.s3.amazonaws.com/natural-earth-1.4.0/cultural/10m-populated-places-simple.zip
   unzip "*.zip"
   find -iname '*.shp' -execdir shapeindex {} \;
+
+  cp /style/themes/$STYLE_DIR/*.mss /style/themes/osm-smartrak
   mkdir /style/output
   cd /style && ./make.py
   cd /style/output/OSMSmartrak && carto project.mml > mapnik.xml
