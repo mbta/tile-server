@@ -21,23 +21,30 @@ map_data_path="${HOME}/data"
 if [ ! -f "${map_data_path}/merged.osm.pbf" ]; then
   mkdir "${map_data_path}"
   cd "${map_data_path}"
-  for filename in massachusetts-latest.osm.pbf rhode-island-latest.osm.pbf new-hampshire-latest.osm.pbf; do
-    wget --tries=100 --retry-on-http-error=429 --waitretry=100 --random-wait \
-      http://download.geofabrik.de/north-america/us/$filename
-  done
 
-  # merge map data
-  # `osmium merge` allows duplicates, which did not allow us to utilize osm2pgsql 
-  # in slim mode, so here we convert the files first to .o5m before merging
-  osmconvert "${map_data_path}/massachusetts-latest.osm.pbf" -o="${map_data_path}/massachusetts-latest.o5m"
-  osmconvert "${map_data_path}/rhode-island-latest.osm.pbf" -o="${map_data_path}/rhode-island-latest.o5m"
-  osmconvert "${map_data_path}/new-hampshire-latest.osm.pbf" -o="${map_data_path}/new-hampshire-latest.o5m"
-  # Merge o5m files into one pbf file:
-  osmconvert \
-    "${map_data_path}/massachusetts-latest.o5m" \
-    "${map_data_path}/rhode-island-latest.o5m" \
-    "${map_data_path}/new-hampshire-latest.o5m" \
-    -o="${map_data_path}/merged.osm.pbf"
+  if [ "$SMALL_MAP" ]; then
+    wget --tries=100 --retry-on-http-error=429 --waitretry=100 --random-wait \
+      http://download.geofabrik.de/north-america/us/massachusetts-latest.osm.pbf
+    mv "${map_data_path}/massachusetts-latest.osm.pbf" "${map_data_path}/merged.osm.pbf"
+  else
+    for filename in massachusetts-latest.osm.pbf rhode-island-latest.osm.pbf new-hampshire-latest.osm.pbf; do
+      wget --tries=100 --retry-on-http-error=429 --waitretry=100 --random-wait \
+        http://download.geofabrik.de/north-america/us/$filename
+    done
+
+    # merge map data
+    # `osmium merge` allows duplicates, which did not allow us to utilize osm2pgsql 
+    # in slim mode, so here we convert the files first to .o5m before merging
+    osmconvert "${map_data_path}/massachusetts-latest.osm.pbf" -o="${map_data_path}/massachusetts-latest.o5m"
+    osmconvert "${map_data_path}/rhode-island-latest.osm.pbf" -o="${map_data_path}/rhode-island-latest.o5m"
+    osmconvert "${map_data_path}/new-hampshire-latest.osm.pbf" -o="${map_data_path}/new-hampshire-latest.o5m"
+    # Merge o5m files into one pbf file:
+    osmconvert \
+      "${map_data_path}/massachusetts-latest.o5m" \
+      "${map_data_path}/rhode-island-latest.o5m" \
+      "${map_data_path}/new-hampshire-latest.o5m" \
+      -o="${map_data_path}/merged.osm.pbf"
+  fi
 fi
 
 if [ -z "${STYLE_DIR}" ]; then

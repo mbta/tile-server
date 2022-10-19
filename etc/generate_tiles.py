@@ -191,11 +191,17 @@ def render_tiles(bbox, mapfile, tile_dir, minZoom=1,maxZoom=18, name="unknown", 
     for i in range(num_threads):
         renderers[i].join()
 
-def slice_map(thread_count, current_thread):
-    LON_START = -72
-    LAT_START = 41.2
-    LON_END = -69.8
-    LAT_END = 43
+def slice_map(thread_count, current_thread, small_map):
+    if small_map:
+        LON_START = -71.55
+        LAT_START = 42.05
+        LON_END = -70.6
+        LAT_END = 42.65
+    else:
+        LON_START = -72
+        LAT_START = 41.2
+        LON_END = -69.8
+        LAT_END = 43
 
     # we can try to implement more complex logic later but for now let's just slice map into horizontal areas
     dY = (LAT_END - LAT_START) / thread_count
@@ -216,6 +222,10 @@ if __name__ == "__main__":
         tile_dir = os.environ['MAPNIK_TILE_DIR']
     except KeyError:
         tile_dir = "/var/lib/mod_tile/"
+    try:
+        small_map = os.environ["SMALL_MAP"]
+    except KeyError:
+        small_map = false
 
     if not tile_dir.endswith('/'):
         tile_dir = tile_dir + '/'
@@ -223,10 +233,10 @@ if __name__ == "__main__":
     try: 
         thread_count = int(os.environ['BATCH_JOB_COUNT'])
         current_thread = int(os.environ['AWS_BATCH_JOB_ARRAY_INDEX'])
-        bbox = slice_map(thread_count, current_thread)
+        bbox = slice_map(thread_count, current_thread, small_map)
     except KeyError:
         print "WARN: AWS Batch variables were not set, running in single-threaded mode"
-        bbox = slice_map(thread_count=1, current_thread=0)
+        bbox = slice_map(thread_count=1, current_thread=0, small_map=small_map)
     except ValueError, t:
         print "ERROR: Unable to parse AWS Batch variables"
         raise ValueError(t)
