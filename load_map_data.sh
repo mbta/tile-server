@@ -22,7 +22,7 @@ if [ ! -f "${map_data_path}/merged.osm.pbf" ]; then
   mkdir "${map_data_path}"
   cd "${map_data_path}"
 
-  if [ "$SMALL_MAP" ]; then
+  if [ "${MAP_TYPE}" == "bus" ]; then
     wget --tries=100 --retry-on-http-error=429 --waitretry=100 --random-wait \
       http://download.geofabrik.de/north-america/us/massachusetts-latest.osm.pbf
     mv "${map_data_path}/massachusetts-latest.osm.pbf" "${map_data_path}/merged.osm.pbf"

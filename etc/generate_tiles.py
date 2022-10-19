@@ -191,8 +191,8 @@ def render_tiles(bbox, mapfile, tile_dir, minZoom=1,maxZoom=18, name="unknown", 
     for i in range(num_threads):
         renderers[i].join()
 
-def slice_map(thread_count, current_thread, small_map):
-    if small_map:
+def slice_map(thread_count, current_thread, map_type):
+    if map_type == "bus":
         LON_START = -71.55
         LAT_START = 42.05
         LON_END = -70.6
@@ -223,9 +223,9 @@ if __name__ == "__main__":
     except KeyError:
         tile_dir = "/var/lib/mod_tile/"
     try:
-        small_map = os.environ["SMALL_MAP"]
+        map_type = os.environ["MAP_TYPE"]
     except KeyError:
-        small_map = false
+        map_type = "default"
 
     if not tile_dir.endswith('/'):
         tile_dir = tile_dir + '/'
@@ -233,10 +233,10 @@ if __name__ == "__main__":
     try: 
         thread_count = int(os.environ['BATCH_JOB_COUNT'])
         current_thread = int(os.environ['AWS_BATCH_JOB_ARRAY_INDEX'])
-        bbox = slice_map(thread_count, current_thread, small_map)
+        bbox = slice_map(thread_count, current_thread, map_type)
     except KeyError:
         print "WARN: AWS Batch variables were not set, running in single-threaded mode"
-        bbox = slice_map(thread_count=1, current_thread=0, small_map=small_map)
+        bbox = slice_map(thread_count=1, current_thread=0, map_type=map_type)
     except ValueError, t:
         print "ERROR: Unable to parse AWS Batch variables"
         raise ValueError(t)
