@@ -29,12 +29,16 @@ if [ "$1" == "kosmtik" ]; then
     sudo -H -u postgres kosmtik serve /style/output/OSMSmartrak/project.mml
 fi
 
+if [ -z "${S3_SUBDIRECTORY}" ]; then
+  STYLE_DIR="osm_tiles"
+fi
+
 # if 'tiles' is passed as a command to run, generate and publish tiles
 if [ "$1" == "tiles" ]; then
     sudo -E -u postgres /var/lib/postgresql/src/generate_tiles.py
     if [ -n "${MAPNIK_TILE_S3_BUCKET}" ]; then
         [[ "${S3_FORCE_OVERWRITE}" = "1" ]] && S3_ARGS= || S3_ARGS="--size-only"
-        cd /var/lib/mod_tile/ && aws s3 sync . "s3://${MAPNIK_TILE_S3_BUCKET}/osm_tiles/" ${S3_ARGS}
+        cd /var/lib/mod_tile/ && aws s3 sync . "s3://${MAPNIK_TILE_S3_BUCKET}/${S3_SUBDIRECTORY}/" ${S3_ARGS}
         echo "AWS S3 sync has completed successfully"
     fi
 fi
