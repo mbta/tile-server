@@ -14,8 +14,7 @@ fi
 service postgresql start
 
 # load map data
-sudo -H -u postgres env "STYLE_DIR=$STYLE_DIR" "SMALL_MAP=$SMALL_MAP" \
-     /load_map_data.sh
+sudo -E -H -u postgres /load_map_data.sh
 
 # make sure all apache sites are disabled to start
 for site in `ls -1 /etc/apache2/sites-enabled`; do
