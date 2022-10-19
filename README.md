@@ -6,6 +6,8 @@ OpenStreetMap tile server
 
 The goal of this repository is to facilitate the creation of a Docker container that encapsulates all the elements necessary to develop map tiles for use on MBTA.com. The resulting tile images are published to S3.
 
+The styles used are modified versions of the [OSM Smartrak](https://github.com/jacobtoye/osm-bright) theme, itself a derivative of the [OSM Bright](https://github.com/mapbox/osm-bright) theme. License information can be found in `etc/default-style/LICENSE.txt` and `etc/skate-style/LICENSE.txt`.
+
 ## Development
 
 To build the tile-server container, change to the root of the repo and run:
