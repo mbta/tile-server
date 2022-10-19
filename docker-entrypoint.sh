@@ -30,7 +30,7 @@ if [ "$1" == "kosmtik" ]; then
 fi
 
 if [ -z "${S3_SUBDIRECTORY}" ]; then
-  STYLE_DIR="osm_tiles"
+  S3_SUBDIRECTORY="osm_tiles"
 fi
 
 # if 'tiles' is passed as a command to run, generate and publish tiles
