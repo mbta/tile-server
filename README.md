@@ -28,6 +28,12 @@ DOCKER_SERVER=[Docker server URL] build_push.sh [tag]
 
 Usually, the tag argument we provide is of the form `git-[commit hash]`. The script will also apply the `latest` tag.
 
+## Map Styling and Coverage
+
+The default styling of the map is optimized for [mbta.com](https://www.mbta.com/). There is also a style intended primarily for use with [Skate](https://github.com/mbta/skate). Which style is used can be changed by using the `STYLE_DIR` environment variable, using a value of either `default` (the default if not set explicitly) or `skate`.
+
+In addition, the `MAP_TYPE` environment variable can be used to customize the coverage area. By default, a coverage area including eastern Massachusetts, Rhode Island, and southern New Hampshire is used. The boundaries of this area are defined in the source code in [`generate_tiles.py`](https://github.com/mbta/tile-server/blob/master/etc/generate_tiles.py#L200-L204). In addition, the OSM data files to fetch are determined in `load_map_data.sh`. For a demonstration of how to add data for additional states, see [this PR](https://github.com/mbta/tile-server/pull/12/files). In addition to the default area if no input is provided, setting `MAP_TYPE` to `bus` will pull data and build tiles for a somewhat smaller area, roughly corresponding to the area within I-495 to conservatively capture the entire MBTA bus service area.
+
 ## Run Modes
 
 The container will load all map data automatically when started. There are four different modes for how to run it:
@@ -77,6 +83,7 @@ $ docker run --tty \
 To generate all tile images at once, append `tiles` to the `docker run` command. You can also upload them directly to S3 by declaring the necessary environment variables:
 
 * `MAPNIK_TILE_S3_BUCKET`: S3 bucket to upload tiles
+* `S3_SUBDIRECTORY`: directory within the bucket to place the tiles. Defaults to `osm_tiles`.
 * `AWS_ACCESS_KEY_ID`: AWS access key ID
 * `AWS_SECRET_ACCESS_KEY`: AWS secret access key
 * `S3_FORCE_OVERWRITE`: controls how files are uploaded to S3; if set to "1" then all files will be uploaded, otherwise only the changed files will be uploaded. Whether the file has been changed is determined by the file size. It is recommended to set this flag whenever map style is modified, because if the only thing that is changed for a map tile is its color, then the file size is going to remain the same and the tile is not going to be uploaded
@@ -97,8 +104,6 @@ $ docker run --tty \
 #### AWS Batch
 
 The tile generation mode is optimized for running in [AWS Batch](https://aws.amazon.com/batch/), which allows multiple similar jobs to be executed in parallel.
-
-When the tile generation job is run, tiles are generated for a _service area_ defined in the source code: [generate_tiles.py](https://github.com/mbta/tile-server/blob/master/etc/generate_tiles.py#L195-L198). This area roughtly represents the area which customers are believed to expect to see on the maps on the mbta.com website. If you change the area in the source code -- or do any other change there -- you need to rebuild and publish a new version of the Docker image.
 
 The idea behind generating tiles via AWS batch is that we split the _service area_ into horizontal (East-West) stripes and generate tiles for each of those map stripes independently. Since there is no overlap, the execution can be parallelized and we can have as many parallel jobs as we see necessary.
 
