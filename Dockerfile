@@ -85,6 +85,8 @@ COPY etc/default-style/labels.mss /style/themes/default/labels.mss
 COPY etc/skate-style/palette.mss /style/themes/skate/palette.mss
 COPY etc/skate-style/labels.mss /style/themes/skate/labels.mss
 COPY etc/skate-style/base.mss /style/themes/skate/base.mss
+COPY etc/skate-style/roads.mss /style/themes/skate/roads.mss
+
 
 # fix permissions
 RUN chown -R postgres:postgres ~postgres/
