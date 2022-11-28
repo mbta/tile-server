@@ -43,11 +43,11 @@ Map { font-directory: url(./fonts); }
 @land_low:          @background_grey;
 @water:             #c8c9e5;
 @grass:             #c9e2c1;
-@beach:             #FFEEC7;
+@beach:             #ffeec7;
 @park:              #c9e2c1;
 @cemetery:          #c9e2c1;
 @wooded:            #c9e2c1;
-@agriculture:       #F2E8B6;
+@agriculture:       #f2e8b6;
 
 @building:          @background_grey;
 @building_line:     #dbdde1;
