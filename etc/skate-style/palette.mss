@@ -39,14 +39,16 @@ Map { font-directory: url(./fonts); }
 
 @background_grey:   #f4f4f5;
 
+@greenspace:        #b1deaf;
+
 @land:              @background_grey;
 @land_low:          @background_grey;
 @water:             #b6bee7;
-@grass:             #c9e2c1;
+@grass:             @greenspace;
 @beach:             #ffeec7;
-@park:              #c9e2c1;
-@cemetery:          #c9e2c1;
-@wooded:            #c9e2c1;
+@park:              @greenspace;
+@cemetery:          @greenspace;
+@wooded:            @greenspace;
 @agriculture:       #f2e8b6;
 
 @building:          @background_grey;
@@ -54,7 +56,7 @@ Map { font-directory: url(./fonts); }
 @building_case:     #d3d1c8;
 @hospital:          #ebe3da;
 @school:            @background_grey;
-@sports:            #c9e2c1;
+@sports:            @greenspace;
 
 @residential:       @background_grey;
 @commercial:        @background_grey;
