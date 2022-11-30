@@ -132,6 +132,9 @@ Map { font-directory: url(./fonts); }
    at once or override each individually. */
 @place_halo:        fadeout(#fff,34%);
 
+@halo_white:        @place_halo;
+@greenspace_halo:   @halo_white;
+
 @country_text:      #222;
 @country_halo:      @place_halo;
 
