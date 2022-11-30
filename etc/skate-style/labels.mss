@@ -1,12 +1,12 @@
 /* LABELS.MSS CONTENTS:
  * - place names
  * - area labels
- * - waterway labels 
+ * - waterway labels
  */
 
 /* Font sets are defined in palette.mss */
 
-/* Mapnik does not yet support character-spacing adjustments for 
+/* Mapnik does not yet support character-spacing adjustments for
    labels placed along a line. We can fake this using the replace()
    function in the text-name parameter by replacing each character
    with itself followed by one or more spaces. */
@@ -220,16 +220,16 @@
     text-halo-radius: 2;
     text-transform: uppercase;
     text-character-spacing: 1;
-    text-wrap-width: 60; 
+    text-wrap-width: 60;
     text-line-spacing: 1;
   }
   [zoom>=16] {
     text-character-spacing: 2;
     text-wrap-width: 120;
     text-line-spacing: 2;
-  } 
+  }
   [zoom>=17] {
-    text-size:14; 
+    text-size:14;
     text-character-spacing: 3;
     text-wrap-width: 160;
     text-line-spacing: 4;
@@ -346,7 +346,7 @@
     text-clip: false;
   }
 }
-   
+
 #poi[type='university'][zoom>=15],
 #poi[type='hospital'][zoom>=16],
 #poi[type='school'][zoom>=17],
@@ -375,7 +375,7 @@
   text-min-distance: 400;
   text-size: 10;
   text-clip: false;
-  text-avoid-edges: true; 
+  text-avoid-edges: true;
   [type='river'][zoom>=12] {
     text-size: 12;
   }
@@ -543,7 +543,7 @@
   text-placement: line;
   text-size: 11;
   text-clip: false;
-  text-avoid-edges: true; 
+  text-avoid-edges: true;
 }
 
 /* ****************************************************************** */
