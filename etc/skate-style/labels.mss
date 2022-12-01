@@ -368,7 +368,7 @@
 #waterway_label[type='stream'][zoom>=17] {
   text-name: '[name]';
   text-face-name: @sans;
-  text-fill: @water * 0.75;
+  text-fill: @waterway_label;
   text-halo-fill: fadeout(lighten(@water,5%),25%);
   text-halo-radius: 1;
   text-placement: line;
