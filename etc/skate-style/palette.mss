@@ -40,7 +40,7 @@ Map { font-directory: url(./fonts); }
 @background_grey:   #f4f4f5;
 
 @land:              @background_grey;
-@land_low: 		     @background_grey;
+@land_low:          @background_grey;
 @water:             #c8c9e5;
 @grass:             #c9e2c1;
 @beach:             #FFEEC7;
