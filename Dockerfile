@@ -74,16 +74,12 @@ RUN apt-get -y install python-pip
 RUN pip install awscli
 RUN aws configure set default.s3.max_concurrent_requests 100
 COPY etc/generate_tiles.py /var/lib/postgresql/src/generate_tiles.py
-RUN chmod a+x /var/lib/postgresql/src/generate_tiles.py
 
 # install and configure styles
 COPY etc/configure.py /style/configure.py
 
 COPY etc/osm-smartrak/make.py /style/make.py
 COPY etc/osm-smartrak/utils.py /style/utils.py
-# TODO: Is there a better way to prevent permissions issues when running make.py?
-RUN chmod a+x /style/make.py
-
 
 # add base styles to each theme directory first. The files specified in each theme directory may override these.
 COPY etc/project.osm2pgsql.mml /style/themes/default/project.osm2pgsql.mml
@@ -112,10 +108,9 @@ RUN touch /var/www/html/_health
 
 # copy map data loader script
 COPY ./load_map_data.sh /
-RUN chmod +x load_map_data.sh
 
 COPY ./docker-entrypoint.sh /
-RUN chmod +x docker-entrypoint.sh
+
 EXPOSE 80
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
