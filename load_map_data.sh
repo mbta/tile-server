@@ -63,17 +63,16 @@ if [ ! -d "${shape_path}" ]; then
   unzip "*.zip"
   find -iname '*.shp' -execdir shapeindex {} \;
 
-  cp /style/themes/$STYLE_DIR/*.mss /style/themes/osm-smartrak
+  cp -r /style/themes/$STYLE_DIR /style/themes/target
   mkdir /style/output
   cd /style && ./make.py
-  cd /style/output/OSMSmartrak && carto project.mml > mapnik.xml
+  cd /style/output/TargetTheme && carto project.mml > mapnik.xml
   # additional fonts requred for tile generation
-  cp -R /style/themes/osm-bright/fonts /style/output/OSMSmartrak/
-  cd /style/output/OSMSmartrak/fonts && wget "https://assets.ubuntu.com/v1/fad7939b-ubuntu-font-family-0.83.zip"
+  cd /style/output/TargetTheme/fonts && wget "https://assets.ubuntu.com/v1/fad7939b-ubuntu-font-family-0.83.zip"
   unzip "fad7939b-ubuntu-font-family-0.83.zip" && cd ubuntu-font-family-* && cp * ../
-  cd /style/output/OSMSmartrak/fonts && wget "https://www.freedesktop.org/software/fontconfig/webfonts/webfonts.tar.gz"
-  tar -xzf webfonts.tar.gz && cd msfonts && cabextract *.exe && cp *.ttf *.TTF /style/output/OSMSmartrak/fonts/
-  cd /style/output/OSMSmartrak && sed -i 's^<Font face-name="unifont Medium" />^^' mapnik.xml
+  cd /style/output/TargetTheme/fonts && wget "https://www.freedesktop.org/software/fontconfig/webfonts/webfonts.tar.gz"
+  tar -xzf webfonts.tar.gz && cd msfonts && cabextract *.exe && cp *.ttf *.TTF /style/output/TargetTheme/fonts/
+  cd /style/output/TargetTheme && sed -i 's^<Font face-name="unifont Medium" />^^' mapnik.xml
 fi
 
 # populate database

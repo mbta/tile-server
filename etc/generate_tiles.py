@@ -217,7 +217,7 @@ if __name__ == "__main__":
     try:
         mapfile = os.environ['MAPNIK_MAP_FILE']
     except KeyError:
-        mapfile = "/style/output/OSMSmartrak/mapnik.xml"
+        mapfile = "/style/output/TargetTheme/mapnik.xml"
     try:
         tile_dir = os.environ['MAPNIK_TILE_DIR']
     except KeyError:

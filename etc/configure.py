@@ -4,14 +4,17 @@ from os import path
 from collections import defaultdict
 config = defaultdict(defaultdict)
 
-config["theme"] = "osm-smartrak" # the folder the theme is located in ('osm-bright' or 'osm-smartrak')
+# TODO: mabe remove theme config in favor of STYLE_DIR?
+config["theme"] = "target" 
+config["project_file_name"] = "project" 
+
 
 config["importer"] = "osm2pgsql" # either 'imposm' or 'osm2pgsql'
 
 # The name given to the style. This is the name it will have in the TileMill
 # project list, and a sanitized version will be used as the directory name
 # in which the project is stored
-config["name"] = "OSM Smartrak"
+config["name"] = "TargetTheme"
 
 # The absolute path to your MapBox projects directory. You should 
 # not need to change this unless you have configured TileMill specially
