@@ -4,7 +4,6 @@ from os import path
 from collections import defaultdict
 config = defaultdict(defaultdict)
 
-# TODO: mabe remove theme config in favor of STYLE_DIR?
 config["theme"] = "target" 
 config["project_file_name"] = "project" 
 
