@@ -9,9 +9,6 @@ from shutil import rmtree
 from os.path import join, isdir, expanduser, exists
 from collections import defaultdict
 
-# TODO - proper attribution 
-# https://github.com/jacobtoye/osm-bright/blob/master/make.py
-
 if not exists('./configure.py'):
     sys.stderr.write('Error: configure.py does not exist, did you forget to create it from the sample (configure.py.sample)?\n')
     sys.exit(1)
