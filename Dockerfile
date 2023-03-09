@@ -92,9 +92,6 @@ COPY etc/default-style/*.mss /style/themes/default/
 COPY etc/skate-style/*.mss /style/themes/skate/
 COPY etc/skate-style/img /style/themes/skate/img
 
-
-
-
 # fix permissions
 RUN chown -R postgres:postgres ~postgres/
 RUN chown -R postgres:postgres /style
