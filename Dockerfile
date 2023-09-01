@@ -34,8 +34,7 @@ RUN apt-get -y install autoconf apache2-dev libtool libxml2-dev libbz2-dev libge
 # official repositories, which provide their own init configuration, but those packages are only in
 # newer versions. Once we update this container to use 22.04, or another newer Ubuntu version, we can
 # install mod_tile that way and avoid having to build it ourselves entirely.
-RUN git clone https://github.com/openstreetmap/mod_tile.git ~postgres/src/mod_tile
-RUN cd ~postgres/src/mod_tile && git reset fd5988fc5877c51838ad96991d6e2912cfaf7d61 --hard && ./autogen.sh && ./configure && make && make install && make install-mod_tile && ldconfig
+run apt-get -y install libapache2-mod-tile
 
 #build carto (map style configuration)
 RUN apt-get install -y npm nodejs node-gyp libnode-dev libssl-dev
@@ -54,7 +53,6 @@ COPY etc/renderd.conf /usr/local/etc/renderd.conf
 RUN mkdir /var/lib/mod_tile && chown postgres:postgres /var/lib/mod_tile
 RUN mkdir /var/run/renderd && chown postgres:postgres /var/run/renderd
 COPY etc/default_renderd.sh /etc/default/renderd
-RUN cp ~postgres/src/mod_tile/debian/renderd.init /etc/init.d/renderd && chmod a+x /etc/init.d/renderd
 RUN rm /etc/apache2/sites-enabled/000-default.conf
 
 # configure apache
