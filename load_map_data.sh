@@ -62,7 +62,9 @@ if [ -z "$(ls -A $shape_path)" ]; then
   wget http://mapbox-geodata.s3.amazonaws.com/natural-earth-1.4.0/cultural/10m-populated-places-simple.zip
   unzip "*.zip"
   find -iname '*.shp' -execdir shapeindex {} \;
+fi
 
+if [ ! -d "/style/output/TargetTheme" ]; then
   cp -r /style/themes/$STYLE_DIR /style/themes/target
   mkdir /style/output
   cd /style && ./make.py
