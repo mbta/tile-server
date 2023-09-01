@@ -50,8 +50,8 @@ RUN apt-get -y install fonts-noto-cjk fonts-noto-cjk fonts-noto-hinted fonts-not
 #configure renderd
 USER root
 COPY etc/renderd.conf /usr/local/etc/renderd.conf
-RUN mkdir /var/lib/mod_tile && chown postgres:postgres /var/lib/mod_tile
-RUN mkdir /var/run/renderd && chown postgres:postgres /var/run/renderd
+RUN mkdir -p /var/lib/mod_tile && chown postgres:postgres /var/lib/mod_tile
+RUN mkdir -p /var/run/renderd && chown postgres:postgres /var/run/renderd
 COPY etc/default_renderd.sh /etc/default/renderd
 RUN rm /etc/apache2/sites-enabled/000-default.conf
 
