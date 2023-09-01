@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 completion_flagfile="${HOME}/map_data_loaded"
 

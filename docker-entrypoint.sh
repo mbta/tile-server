@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 # if 'copy' is passed as a command to run, just copy tiles between buckets and exit
 if [ "$1" == "copy" ]; then
