@@ -1,13 +1,13 @@
 FROM ubuntu:22.04
 RUN apt-get -y update && apt-get -y install libboost-all-dev git-core tar unzip wget bzip2 build-essential autoconf\
   libtool libxml2-dev libgeos-dev libgeos++-dev libpq-dev libbz2-dev libproj-dev munin-node munin\
-  libprotobuf-c0-dev protobuf-c-compiler libfreetype6-dev libtiff5-dev libicu-dev libgdal-dev\
-  libcairo-dev libcairomm-1.0-dev apache2 apache2-dev libagg-dev liblua5.2-dev ttf-unifont lua5.1\
-  liblua5.1-dev libgeotiff-epsg curl
+  libprotobuf-dev protobuf-c-compiler libfreetype6-dev libtiff5-dev libicu-dev libgdal-dev\
+  libcairo-dev libcairomm-1.0-dev apache2 apache2-dev libagg-dev liblua5.2-dev fonts-unifont lua5.1\
+  liblua5.1-dev libgeotiff5 curl
 
 #install and configure Postgres
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get -y install postgresql postgresql-contrib postgis postgresql-10-postgis-2.4 postgresql-10-postgis-scripts
+RUN apt-get -y install postgresql postgresql-contrib postgis postgresql-postgis postgresql-postgis-scripts
 USER postgres
 RUN /etc/init.d/postgresql start &&\
     psql --command "CREATE USER docker WITH SUPERUSER PASSWORD 'docker';" &&\
@@ -22,12 +22,12 @@ RUN /etc/init.d/postgresql start &&\
 USER root
 RUN git clone https://github.com/openstreetmap/osm2pgsql.git ~postgres/src/osm2pgsql --depth 1
 RUN apt-get -y install make cmake g++ libboost-dev libboost-system-dev libboost-filesystem-dev libexpat1-dev\
-  zlib1g-dev libbz2-dev libpq-dev libgeos-dev libgeos++-dev libproj-dev lua5.2 liblua5.2-dev osmctools
+  zlib1g-dev libbz2-dev libpq-dev libgeos-dev libgeos++-dev libproj-dev lua5.2 liblua5.2-dev osmctools nlohmann-json3-dev
 RUN cd ~postgres/src/osm2pgsql && mkdir build && cd build && cmake .. && make && make install
 
 #install Mapnik
 RUN apt-get -y install autoconf apache2-dev libtool libxml2-dev libbz2-dev libgeos-dev libgeos++-dev\
-  libproj-dev gdal-bin libmapnik-dev mapnik-utils python-mapnik sudo
+  libproj-dev gdal-bin libmapnik-dev mapnik-utils python3-mapnik sudo libiniparser-dev
 
 #build mod_tile and renderd
 # Newer commits in mod_tile remove the renderd.init file since the project is now in Debian / Ubuntu
@@ -38,15 +38,15 @@ RUN git clone https://github.com/openstreetmap/mod_tile.git ~postgres/src/mod_ti
 RUN cd ~postgres/src/mod_tile && git reset fd5988fc5877c51838ad96991d6e2912cfaf7d61 --hard && ./autogen.sh && ./configure && make && make install && make install-mod_tile && ldconfig
 
 #build carto (map style configuration)
-RUN apt-get install -y npm nodejs node-gyp nodejs-dev libssl1.0-dev
+RUN apt-get install -y npm nodejs node-gyp libnode-dev libssl-dev
 RUN npm install -g carto
 
 # install kosmtik
 RUN npm -g install kosmtik
 
 #install fonts
-RUN apt-get -y install fonts-noto-cjk fonts-noto-cjk fonts-noto-hinted fonts-noto-unhinted fonts-hanazono ttf-unifont\
-  ttf-dejavu ttf-dejavu-core ttf-dejavu-extra cabextract
+RUN apt-get -y install fonts-noto-cjk fonts-noto-cjk fonts-noto-hinted fonts-noto-unhinted fonts-hanazono fonts-unifont\
+  fonts-dejavu fonts-dejavu-core fonts-dejavu-extra cabextract
 
 #configure renderd
 USER root
@@ -70,8 +70,7 @@ RUN cd /usr/share/fonts/truetype/noto/ && \
   wget https://github.com/googlefonts/noto-emoji/raw/main/fonts/NotoColorEmoji.ttf
 
 # generate tile scripts
-RUN apt-get -y install python-pip
-RUN pip install awscli
+RUN apt-get -y install python-pip awscli
 RUN aws configure set default.s3.max_concurrent_requests 100
 COPY etc/generate_tiles.py /var/lib/postgresql/src/generate_tiles.py
 
