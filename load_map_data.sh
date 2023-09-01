@@ -66,7 +66,7 @@ fi
 
 if [ ! -d "/style/output/TargetTheme" ]; then
   cp -r /style/themes/$STYLE_DIR /style/themes/target
-  mkdir /style/output
+  mkdir -p /style/output
   cd /style && python2 ./make.py
   cd /style/output/TargetTheme && carto project.mml > mapnik.xml
   # additional fonts requred for tile generation
