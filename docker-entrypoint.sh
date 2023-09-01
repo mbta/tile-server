@@ -25,7 +25,7 @@ done
 if [ "$1" == "kosmtik" ]; then
     a2ensite kosmtik
     service apache2 restart
-    sudo -H -u postgres kosmtik serve /style/output/TargetTheme/project.mml
+    sudo -H -u postgres -- kosmtik serve --host "0.0.0.0" /style/output/TargetTheme/project.mml
 fi
 
 if [ -z "${S3_SUBDIRECTORY}" ]; then
