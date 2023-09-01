@@ -53,7 +53,7 @@ fi
 
 # download shapefiles and build style
 shape_path="/style/shp"
-if [ ! -d "${shape_path}" ]; then
+if [ -z "$(ls -A $shape_path)" ]; then
   mkdir -p "${shape_path}"
   cd "${shape_path}"
   wget http://mapbox-geodata.s3.amazonaws.com/natural-earth-1.3.0/physical/10m-land.zip
