@@ -67,7 +67,7 @@ fi
 if [ ! -d "/style/output/TargetTheme" ]; then
   cp -r /style/themes/$STYLE_DIR /style/themes/target
   mkdir /style/output
-  cd /style && ./make.py
+  cd /style && python2 ./make.py
   cd /style/output/TargetTheme && carto project.mml > mapnik.xml
   # additional fonts requred for tile generation
   cd /style/output/TargetTheme/fonts && wget "https://assets.ubuntu.com/v1/fad7939b-ubuntu-font-family-0.83.zip"
