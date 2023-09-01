@@ -41,7 +41,10 @@ RUN apt-get install -y npm nodejs node-gyp libnode-dev libssl-dev
 RUN npm install -g carto
 
 # install kosmtik
-RUN npm -g install kosmtik
+# RUN git clone https://github.com/kosmtik/kosmtik.git ~/kosmtik/src
+# RUN cd ~/kosmtik/src && npm install -g
+RUN npm install --unsafe-perm -g git+https://github.com/kosmtik/kosmtik
+
 
 #install fonts
 RUN apt-get -y install fonts-noto-cjk fonts-noto-cjk fonts-noto-hinted fonts-noto-unhinted fonts-hanazono fonts-unifont\
@@ -102,5 +105,6 @@ COPY ./load_map_data.sh /
 COPY ./docker-entrypoint.sh /
 
 EXPOSE 80
+EXPOSE 6789
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
