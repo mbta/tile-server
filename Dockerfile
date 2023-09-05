@@ -99,6 +99,11 @@ COPY ./dev.html /var/www/html/
 # simulate a health check
 RUN touch /var/www/html/_health
 
+RUN mv /etc/postgresql/14/main/pg_hba.conf /etc/postgresql/14/main/pg_hba.conf.old && \
+  echo "host    all             all             127.0.0.1/32            trust" > /etc/postgresql/14/main/pg_hba.conf && \
+  cat /etc/postgresql/14/main/pg_hba.conf.old >> /etc/postgresql/14/main/pg_hba.conf && \
+  rm /etc/postgresql/14/main/pg_hba.conf.old
+
 # copy map data loader script
 COPY ./load_map_data.sh /
 
