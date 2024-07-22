@@ -20,3 +20,4 @@ aws batch submit-job \
     --job-name "${job_name}" \
     --job-queue "${job_queue}" \
     --job-definition "${job_definition_arn}" \
+    --array-properties "size=8"
