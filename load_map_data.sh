@@ -24,12 +24,12 @@ if [ ! -f "${map_data_path}/merged.osm.pbf" ]; then
 
   if [ "${MAP_TYPE}" == "bus" ]; then
     wget --tries=100 --retry-on-http-error=429 --waitretry=100 --random-wait \
-      http://download.geofabrik.de/north-america/us/massachusetts-latest.osm.pbf
+      https://mbta-map-tiles.s3.us-east-1.amazonaws.com/data/osm/massachusetts-latest.osm.pbf
     mv "${map_data_path}/massachusetts-latest.osm.pbf" "${map_data_path}/merged.osm.pbf"
   else
     for filename in massachusetts-latest.osm.pbf rhode-island-latest.osm.pbf new-hampshire-latest.osm.pbf; do
       wget --tries=100 --retry-on-http-error=429 --waitretry=100 --random-wait \
-        http://download.geofabrik.de/north-america/us/$filename
+        https://mbta-map-tiles.s3.us-east-1.amazonaws.com/data/osm/$filename
     done
 
     # merge map data
