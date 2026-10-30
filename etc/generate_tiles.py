@@ -62,8 +62,10 @@ class RenderThread:
         self.printLock = printLock
         # Load style XML
         mapnik.load_map(self.m, mapfile, True)
-        # Obtain <Map> projection
-        self.prj = mapnik.Projection(self.m.srs)
+        self.transform = mapnik.ProjTransform(
+            mapnik.Projection("+init=epsg:4326"),
+            mapnik.Projection(self.m.srs)
+        )
         # Projects between tile pixel co-ordinates and LatLong (EPSG:4326)
         self.tileproj = GoogleProjection(maxZoom+1)
 
@@ -79,8 +81,8 @@ class RenderThread:
         l1 = self.tileproj.fromPixelToLL(p1, z);
 
         # Convert to map projection (e.g. mercator co-ords EPSG:900913)
-        c0 = self.prj.forward(mapnik.Coord(l0[0],l0[1]))
-        c1 = self.prj.forward(mapnik.Coord(l1[0],l1[1]))
+        c0 = self.transform.forward(mapnik.Coord(l0[0],l0[1]))
+        c1 = self.transform.forward(mapnik.Coord(l1[0],l1[1]))
 
         # Bounding box for the tile
         if hasattr(mapnik,'mapnik_version') and mapnik.mapnik_version() >= 800:
