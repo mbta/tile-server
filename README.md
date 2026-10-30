@@ -16,6 +16,14 @@ To build the tile-server container, change to the root of the repo and run:
 $ docker build -t tile-server .
 ```
 
+The container uses Ubuntu's system CA bundle for Node.js and AWS CLI TLS
+verification. Rebuild and redeploy the image to pick up CA trust-store updates;
+updating the host alone does not update the container.
+
+The Ubuntu 22.04 image uses PostgreSQL 14/PostGIS 3 and Python 3. Existing
+PostgreSQL 10 data volumes cannot be reused directly: use a new volume and
+reload map data, or migrate the database before switching images.
+
 See below for different ways to run the container once built.
 
 ## Pushing Image
