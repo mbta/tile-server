@@ -1,18 +1,15 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # copied from https://github.com/openstreetmap/mapnik-stylesheets/blob/master/generate_tiles.py
 
 from math import pi,cos,sin,log,exp,atan
 from subprocess import call
 import sys, os
-from Queue import Queue
+from queue import Queue
 
 import threading
 
-try:
-    import mapnik2 as mapnik
-except:
-    import mapnik
+import mapnik
 
 DEG_TO_RAD = pi/180
 RAD_TO_DEG = 180/pi
@@ -65,8 +62,10 @@ class RenderThread:
         self.printLock = printLock
         # Load style XML
         mapnik.load_map(self.m, mapfile, True)
-        # Obtain <Map> projection
-        self.prj = mapnik.Projection(self.m.srs)
+        self.transform = mapnik.ProjTransform(
+            mapnik.Projection("+init=epsg:4326"),
+            mapnik.Projection(self.m.srs)
+        )
         # Projects between tile pixel co-ordinates and LatLong (EPSG:4326)
         self.tileproj = GoogleProjection(maxZoom+1)
 
@@ -82,8 +81,8 @@ class RenderThread:
         l1 = self.tileproj.fromPixelToLL(p1, z);
 
         # Convert to map projection (e.g. mercator co-ords EPSG:900913)
-        c0 = self.prj.forward(mapnik.Coord(l0[0],l0[1]))
-        c1 = self.prj.forward(mapnik.Coord(l1[0],l1[1]))
+        c0 = self.transform.forward(mapnik.Coord(l0[0],l0[1]))
+        c1 = self.transform.forward(mapnik.Coord(l1[0],l1[1]))
 
         # Bounding box for the tile
         if hasattr(mapnik,'mapnik_version') and mapnik.mapnik_version() >= 800:
@@ -122,14 +121,14 @@ class RenderThread:
             if bytes == 103:
                 empty = " Empty Tile "
             self.printLock.acquire()
-            print name, ":", z, x, y, exists, empty
+            print(name, ":", z, x, y, exists, empty)
             self.printLock.release()
             self.q.task_done()
 
 
 
 def render_tiles(bbox, mapfile, tile_dir, minZoom=1,maxZoom=18, name="unknown", num_threads=NUM_THREADS, tms_scheme=False):
-    print "render_tiles(",bbox, mapfile, tile_dir, minZoom,maxZoom, name,")"
+    print("render_tiles(",bbox, mapfile, tile_dir, minZoom,maxZoom, name,")")
 
     # Launch rendering threads
     queue = Queue(32)
@@ -232,7 +231,7 @@ if __name__ == "__main__":
 
     try: 
         if 'RETRY_AWS_BATCH_JOB_ARRAY_INDEX' in os.environ:
-            print "Using retry job configuration"
+            print("Using retry job configuration")
             current_thread = int(os.environ['RETRY_AWS_BATCH_JOB_ARRAY_INDEX'])
         else:
             current_thread = int(os.environ['AWS_BATCH_JOB_ARRAY_INDEX'])
@@ -240,10 +239,10 @@ if __name__ == "__main__":
         thread_count = int(os.environ['BATCH_JOB_COUNT'])
         bbox = slice_map(thread_count, current_thread, map_type)
     except KeyError:
-        print "WARN: AWS Batch variables were not set, running in single-threaded mode"
+        print("WARN: AWS Batch variables were not set, running in single-threaded mode")
         bbox = slice_map(thread_count=1, current_thread=0, map_type=map_type)
-    except ValueError, t:
-        print "ERROR: Unable to parse AWS Batch variables"
+    except ValueError as t:
+        print("ERROR: Unable to parse AWS Batch variables")
         raise ValueError(t)
 
     render_tiles(bbox, mapfile, tile_dir, 1, 18, "MBTA", 4)

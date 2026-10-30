@@ -1,13 +1,16 @@
-FROM ubuntu:18.04
-RUN apt-get -y update && apt-get -y install libboost-all-dev git-core tar unzip wget bzip2 build-essential autoconf\
+FROM node:22.23.4-bookworm-slim AS node
+
+FROM ubuntu:22.04 AS runtime
+RUN apt-get update && apt-get -y install ca-certificates libboost-all-dev git-core tar unzip wget bzip2 build-essential autoconf\
   libtool libxml2-dev libgeos-dev libgeos++-dev libpq-dev libbz2-dev libproj-dev munin-node munin\
-  libprotobuf-c0-dev protobuf-c-compiler libfreetype6-dev libtiff5-dev libicu-dev libgdal-dev\
-  libcairo-dev libcairomm-1.0-dev apache2 apache2-dev libagg-dev liblua5.2-dev ttf-unifont lua5.1\
-  liblua5.1-dev libgeotiff-epsg curl
+  libprotobuf-c-dev protobuf-c-compiler libfreetype6-dev libtiff5-dev libicu-dev libgdal-dev\
+  libcairo-dev libcairomm-1.0-dev apache2 apache2-dev libagg-dev liblua5.2-dev fonts-unifont lua5.1\
+  liblua5.1-dev proj-data curl gnupg
+RUN dpkg --compare-versions "$(dpkg-query -W -f='${Version}' ca-certificates)" ge 20260816ubuntu0.22.04.1
 
 #install and configure Postgres
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get -y install postgresql postgresql-contrib postgis postgresql-10-postgis-2.4 postgresql-10-postgis-scripts
+RUN apt-get -y install postgresql postgresql-contrib postgis postgresql-14-postgis-3 postgresql-14-postgis-3-scripts
 USER postgres
 RUN /etc/init.d/postgresql start &&\
     psql --command "CREATE USER docker WITH SUPERUSER PASSWORD 'docker';" &&\
@@ -27,34 +30,38 @@ RUN cd ~postgres/src/osm2pgsql && mkdir build && cd build && cmake .. && make &&
 
 #install Mapnik
 RUN apt-get -y install autoconf apache2-dev libtool libxml2-dev libbz2-dev libgeos-dev libgeos++-dev\
-  libproj-dev gdal-bin libmapnik-dev mapnik-utils python-mapnik sudo
+  libproj-dev gdal-bin libmapnik-dev mapnik-utils python3-mapnik sudo
 
-#build mod_tile and renderd
-# Newer commits in mod_tile remove the renderd.init file since the project is now in Debian / Ubuntu
-# official repositories, which provide their own init configuration, but those packages are only in
-# newer versions. Once we update this container to use 22.04, or another newer Ubuntu version, we can
-# install mod_tile that way and avoid having to build it ourselves entirely.
-RUN git clone https://github.com/openstreetmap/mod_tile.git ~postgres/src/mod_tile
-RUN cd ~postgres/src/mod_tile && git reset fd5988fc5877c51838ad96991d6e2912cfaf7d61 --hard && ./autogen.sh && ./configure && make && make install && make install-mod_tile && ldconfig
+#install mod_tile and renderd
+RUN apt-get -y install libapache2-mod-tile renderd && a2disconf renderd
+
+# Install a Node.js release with the eMudhra intermediate CA fix.
+COPY --from=node /usr/local/bin/node /usr/local/bin/node
+COPY --from=node /usr/local/lib/node_modules/ /usr/local/lib/node_modules/
+RUN ln -s ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm && \
+  ln -s ../lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx && \
+  dpkg --compare-versions "$(node --version | sed 's/^v//')" ge 22.23.4
+ENV NODE_OPTIONS=--use-openssl-ca
+RUN npm config set cafile /etc/ssl/certs/ca-certificates.crt
 
 #build carto (map style configuration)
-RUN apt-get install -y npm nodejs node-gyp nodejs-dev libssl1.0-dev
 RUN npm install -g carto
 
-# install kosmtik
-RUN npm -g install kosmtik
+# The npm release still pins Mapnik bindings for obsolete Node.js versions.
+RUN npm install --prefix /opt/kosmtik https://github.com/kosmtik/kosmtik/archive/e2e4d1a626f1142f95e1adc60adc9c1e4c89ec00.tar.gz && \
+  ln -s /opt/kosmtik/node_modules/.bin/kosmtik /usr/local/bin/kosmtik
 
 #install fonts
-RUN apt-get -y install fonts-noto-cjk fonts-noto-cjk fonts-noto-hinted fonts-noto-unhinted fonts-hanazono ttf-unifont\
-  ttf-dejavu ttf-dejavu-core ttf-dejavu-extra cabextract
+RUN sed -i 's|http://|https://|g' /etc/apt/sources.list && \
+  apt-get -o Acquire::https::Timeout=120 -o Acquire::Retries=3 -y install fonts-noto-cjk fonts-noto-core fonts-noto-extra fonts-hanazono fonts-unifont\
+  fonts-dejavu fonts-dejavu-core fonts-dejavu-extra cabextract
 
 #configure renderd
 USER root
 COPY etc/renderd.conf /usr/local/etc/renderd.conf
-RUN mkdir /var/lib/mod_tile && chown postgres:postgres /var/lib/mod_tile
-RUN mkdir /var/run/renderd && chown postgres:postgres /var/run/renderd
+RUN mkdir -p /var/lib/mod_tile && chown postgres:postgres /var/lib/mod_tile
+RUN mkdir -p /var/run/renderd && chown postgres:postgres /var/run/renderd
 COPY etc/default_renderd.sh /etc/default/renderd
-RUN cp ~postgres/src/mod_tile/debian/renderd.init /etc/init.d/renderd && chmod a+x /etc/init.d/renderd
 RUN rm /etc/apache2/sites-enabled/000-default.conf
 
 # configure apache
@@ -65,13 +72,12 @@ RUN a2enmod proxy_http
 COPY etc/apache2_renderd.conf /etc/apache2/sites-available/renderd.conf
 COPY etc/apache2_kosmtik.conf /etc/apache2/sites-available/kosmtik.conf
 
-# additional fonts requred for pre-rendering
-RUN cd /usr/share/fonts/truetype/noto/ && \
-  wget https://github.com/googlefonts/noto-emoji/raw/main/fonts/NotoColorEmoji.ttf
+# additional fonts required for pre-rendering
+RUN apt-get -y install fonts-noto-color-emoji
 
 # generate tile scripts
-RUN apt-get -y install python-pip
-RUN pip install awscli
+RUN apt-get -y install awscli
+ENV AWS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 RUN aws configure set default.s3.max_concurrent_requests 100
 COPY etc/generate_tiles.py /var/lib/postgresql/src/generate_tiles.py
 
