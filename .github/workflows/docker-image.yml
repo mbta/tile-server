@@ -16,4 +16,5 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - run: docker build .
+    - run: docker build -t tile-server .
+    - run: docker run --entrypoint python3 --volume "$PWD:/workspace:ro" --workdir /workspace tile-server -m unittest discover -s tests
